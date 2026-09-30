@@ -18,8 +18,8 @@ export class ApiError extends Error {
   }
 }
 
-export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
+async function rawFetch(path: string, init: RequestInit): Promise<Response> {
+  return fetch(`${BASE}${path}`, {
     ...init,
     credentials: "include",
     headers: {
@@ -27,13 +27,45 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
       ...(init.headers ?? {}),
     },
   });
+}
+
+let refreshing: Promise<boolean> | null = null;
+
+async function tryRefresh(): Promise<boolean> {
+  // De-duplicate concurrent refreshes.
+  if (!refreshing) {
+    refreshing = rawFetch("/auth/refresh", { method: "POST" })
+      .then((r) => r.ok)
+      .catch(() => false)
+      .finally(() => {
+        refreshing = null;
+      });
+  }
+  return refreshing;
+}
+
+export async function api<T>(path: string, init: RequestInit = {}, _retry = true): Promise<T> {
+  let res = await rawFetch(path, init);
+
+  // Access token expired: refresh once, then retry the original request.
+  if (res.status === 401 && _retry && !path.startsWith("/auth/refresh")) {
+    const body = await res.clone().json().catch(() => null);
+    if (body?.error?.code === "token_expired" && (await tryRefresh())) {
+      res = await rawFetch(path, init);
+    }
+  }
 
   const text = await res.text();
   const body = text ? JSON.parse(text) : null;
 
   if (!res.ok) {
     const err = body?.error ?? {};
-    throw new ApiError(res.status, err.code ?? "error", err.message ?? res.statusText, err.details ?? {});
+    throw new ApiError(
+      res.status,
+      err.code ?? "error",
+      err.message ?? res.statusText,
+      err.details ?? {},
+    );
   }
   return body as T;
 }

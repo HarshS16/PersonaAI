@@ -13,15 +13,19 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
+
+# Tests run each case on its own event loop; a pooled asyncpg connection cannot
+# be reused across loops, so tests use NullPool (a fresh connection each time).
+_is_test = settings.environment.lower() == "test"
 
 engine = create_async_engine(
     settings.database_url,
     echo=False,
     pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20,
+    **({"poolclass": NullPool} if _is_test else {"pool_size": 10, "max_overflow": 20}),
 )
 
 SessionLocal = async_sessionmaker(

@@ -1,7 +1,8 @@
 """Shared pytest fixtures.
 
 The app is exercised via httpx's ASGI transport (no running server needed).
-Integration tests that touch the DB expect the docker-compose Postgres to be up.
+Integration tests that touch the DB expect the docker-compose Postgres to be up;
+each test starts from clean auth tables.
 """
 
 from __future__ import annotations
@@ -16,6 +17,26 @@ from httpx import ASGITransport, AsyncClient
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("LLM_PROVIDER", "fake")
 os.environ.setdefault("EMBEDDING_PROVIDER", "fake")
+
+# Tables truncated between tests (child-first to respect FKs).
+_TABLES = [
+    "one_time_tokens",
+    "refresh_tokens",
+    "oauth_accounts",
+    "users",
+]
+
+
+@pytest.fixture(autouse=True)
+async def _clean_db() -> AsyncGenerator[None, None]:
+    from sqlalchemy import text
+
+    from app.core.db import SessionLocal
+
+    async with SessionLocal() as session:
+        await session.execute(text(f"TRUNCATE {', '.join(_TABLES)} RESTART IDENTITY CASCADE"))
+        await session.commit()
+    yield
 
 
 @pytest.fixture

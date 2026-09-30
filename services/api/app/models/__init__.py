@@ -9,7 +9,7 @@ from __future__ import annotations
 import importlib
 
 _MODEL_MODULES: list[str] = [
-    # populated as milestones add tables, e.g. "app.models.user"
+    "app.models.user",
 ]
 
 

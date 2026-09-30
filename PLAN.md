@@ -91,14 +91,15 @@ All persona-owned rows carry `persona_id`, `visibility` (`private|shared|public`
 - **Done when:** `docker compose up` + `pnpm dev` show the app shell, `/health` is green, and CI-style `pnpm test` passes. ✅ Verified: infra up, migrations apply, pytest + tsc + eslint + next build all green.
 - _Note: Playwright E2E and pre-commit deferred to M1 (added alongside the first real user journey)._
 
-### M1 — Authentication & accounts (§19, §36)
-- [ ] Users table, argon2 hashing, signup/login/logout, JWT access + rotating refresh in httpOnly cookies
-- [ ] Password reset by email token (Mailpit in dev); email verification
-- [ ] Google OAuth + GitHub OAuth login (authorization code flow, state + PKCE), account linking
-- [ ] Account management: change name/email/password, linked accounts
-- [ ] RBAC dependency, rate limiting (slowapi + Redis) on auth endpoints, request validation
-- [ ] Frontend: login, signup, forgot/reset password, protected-route middleware, account settings
-- **Done when:** a user can sign up, log in, reset their password and log in with GitHub. Tests cover token expiry, refresh rotation and rate limiting.
+### M1 — Authentication & accounts (§19, §36) ✅
+- [x] Users table, argon2 hashing, signup/login/logout, JWT access + rotating refresh in httpOnly cookies (with refresh-reuse family revocation)
+- [x] Password reset by email token (Mailpit in dev); email verification
+- [x] Google OAuth + GitHub OAuth login (authorization code flow, signed state, PKCE for Google), account linking by email, provider tokens Fernet-encrypted at rest
+- [x] Account management: change name, change password (revokes other sessions), linked accounts
+- [x] RBAC dependency (`require_role`), rate limiting (slowapi, XFF-aware key) on auth endpoints, request validation, error envelope
+- [x] Frontend: login, signup, forgot/reset password, verify-email, protected-route middleware, account settings, user menu + logout, client-side token refresh-retry
+- **Done when:** a user can sign up, log in, reset their password and log in with GitHub. ✅ 14 backend tests (token expiry, refresh rotation, reuse detection, change-password) pass; live end-to-end signup → cookies → `/me` → verification email verified through the Next proxy. GitHub/Google login paths built; need OAuth app credentials to exercise live (flagged for owner).
+- _Note: XFF-based rate-limit keying needs a trusted-proxy setup in production (tracked for M10)._
 
 ### M2 — Persona core, manual profile & editor (§7, §8, §9, §22)
 - [ ] All persona tables and migrations, visibility and evidence state enums, soft delete

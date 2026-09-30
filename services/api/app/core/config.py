@@ -53,10 +53,10 @@ class Settings(BaseSettings):
     # OAuth
     github_client_id: str = ""
     github_client_secret: str = ""
-    github_redirect_uri: str = "http://localhost:3000/api/auth/github/callback"
+    github_redirect_uri: str = "http://localhost:3000/api/backend/auth/github/callback"
     google_client_id: str = ""
     google_client_secret: str = ""
-    google_redirect_uri: str = "http://localhost:3000/api/auth/google/callback"
+    google_redirect_uri: str = "http://localhost:3000/api/backend/auth/google/callback"
 
     # Email
     smtp_host: str = "localhost"
