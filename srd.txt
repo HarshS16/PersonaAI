@@ -1,0 +1,1514 @@
+Software Requirements Document (SRD)
+Project: Personal AI Persona Platform
+Version: 1.0
+Status: Product Definition
+Document Type: Software Requirements Document
+Primary Product: AI-powered Personal Persona / Professional Digital Twin Platform
+1. Executive Summary
+The Personal AI Persona Platform is an AI-powered application that creates a persistent, evidence-backed digital representation of a person by aggregating information from multiple professional and personal sources.
+Users can connect or upload sources such as:
+- LinkedIn
+- GitHub
+- Resume/CV
+- X
+- Medium
+- Hashnode
+- Personal websites
+- Research papers
+- Project documentation
+- Certifications
+- Portfolio
+- Documents
+The platform processes this information to construct a structured Personal Persona containing:
+- Skills
+- Experience
+- Projects
+- Education
+- Achievements
+- Research
+- Knowledge areas
+- Professional interests
+- Writing style
+- Communication patterns
+- Career preferences
+- Evidence supporting each claim
+The Persona then becomes a persistent context layer for AI-powered applications.
+Instead of repeatedly explaining themselves to an AI system, users can interact with an AI that already understands their professional background.
+Core product philosophy
+Connect your professional identity once. Let AI use that context everywhere.
+
+The first major use case is JD-aligned resume generation, but the platform is designed to support:
+- Resume generation
+- Cover letters
+- Job application responses
+- Interview preparation
+- Career analysis
+- Personal knowledge search
+- Portfolio generation
+- Content creation
+- Research assistance
+- Freelance proposals
+- Meeting preparation
+- Personal AI representation
+- Professional decision support
+2. Problem Statement
+Modern professional information is fragmented across many platforms.
+A single person may have:
+LinkedIn
+GitHub
+Resume
+Portfolio
+X
+Medium
+Hashnode
+Research papers
+Google Drive
+Notion
+Certificates
+Project documentation
+
+These sources contain overlapping but different representations of the person.
+For example:
+LinkedIn
+Contains:
+- Employment
+- Education
+- Skills
+- Professional achievements
+GitHub
+Contains:
+- Actual projects
+- Technologies used
+- Contributions
+- Coding activity
+Resume
+Contains:
+- Curated professional history
+- Selected achievements
+- Career positioning
+Blogs
+Contain:
+- Knowledge
+- Opinions
+- Technical expertise
+- Writing style
+Research papers
+Contain:
+- Research interests
+- Technical knowledge
+- Methodology
+Current AI applications generally require users to repeatedly provide this information.
+This creates several problems:
+1. Context is fragmented.
+2. Users repeatedly upload the same information.
+3. AI-generated outputs may contain unsupported claims.
+4. AI does not understand the complete history of the person.
+5. Important experience gets forgotten or overlooked.
+6. Different AI tools have inconsistent representations of the same person.
+7. Users cannot easily search their own professional history.
+8. Career decisions are often made without considering the person's complete background.
+3. Product Vision
+The platform aims to become a persistent AI identity layer for individuals.
+Instead of building separate AI applications that each maintain their own understanding of the user, this platform maintains a centralized representation of:
+Who the person is, what they know, what they have done, what they have created, and what evidence supports those facts.
+
+Applications can then operate on top of that persona.
+Conceptual architecture
+                 USER
+                   │
+                   ▼
+        ┌────────────────────┐
+        │  DATA CONNECTORS   │
+        └─────────┬──────────┘
+                  │
+      ┌───────────┼────────────┐
+      ▼           ▼            ▼
+   GitHub      LinkedIn       CV
+      │           │            │
+      └───────────┼────────────┘
+                  ▼
+        ┌────────────────────┐
+        │ INGESTION ENGINE   │
+        └─────────┬──────────┘
+                  ▼
+        ┌────────────────────┐
+        │ KNOWLEDGE EXTRACTION│
+        └─────────┬──────────┘
+                  ▼
+        ┌────────────────────┐
+        │   PERSONA ENGINE   │
+        └─────────┬──────────┘
+                  │
+       ┌──────────┴───────────┐
+       ▼                      ▼
+ Structured Persona      Semantic Memory
+       │                      │
+       └──────────┬───────────┘
+                  ▼
+           AI ORCHESTRATOR
+                  │
+    ┌─────────────┼──────────────┐
+    ▼             ▼              ▼
+ Resume        Career          Personal
+ Generator     Assistant       AI
+
+4. Goals
+4.1 Primary Goals
+The platform shall:
+1. Build a persistent professional persona.
+2. Aggregate information from multiple sources.
+3. Extract structured information from unstructured data.
+4. Maintain evidence for important persona claims.
+5. Provide conversational access to the persona.
+6. Generate personalized professional outputs.
+7. Reduce repetitive context provision.
+8. Prevent unsupported AI-generated claims.
+9. Allow users to correct and update their persona.
+10. Continuously synchronize connected sources where permitted.
+5. Non-Goals
+The initial system will not attempt to:
+- Fully replicate a person's consciousness.
+- Make decisions on behalf of users without approval.
+- impersonate users without explicit authorization.
+- Automatically post content.
+- Automatically apply for jobs without explicit user approval.
+- Generate fictional professional achievements.
+- claim expertise unsupported by evidence.
+- scrape platforms in violation of their terms.
+- infer sensitive personal characteristics.
+6. Target Users
+6.1 Students
+Use cases:
+- Resume generation
+- Internship applications
+- Career guidance
+- Portfolio generation
+- Interview preparation
+6.2 Software Developers
+Use cases:
+- GitHub-based portfolio
+- Technical resume
+- Project discovery
+- Interview preparation
+- Personal knowledge search
+6.3 Researchers
+Use cases:
+- Research history
+- Paper discovery
+- Research summaries
+- Research portfolio
+- Literature/work tracking
+6.4 Freelancers
+Use cases:
+- Client proposals
+- Portfolio selection
+- Case studies
+- Skill discovery
+- Client communication
+6.5 Content Creators
+Use cases:
+- Content generation
+- Personal writing style
+- Content repurposing
+- Personal knowledge search
+6.6 Founders
+Use cases:
+- Founder profile
+- Investor preparation
+- Company bio
+- Personal brand
+- Knowledge management
+7. Core Product Concepts
+7.1 Persona
+A structured representation of the user.
+Example:
+{
+  "name": "User",
+  "education": [],
+  "skills": [],
+  "experience": [],
+  "projects": [],
+  "research": [],
+  "achievements": [],
+  "interests": [],
+  "preferences": [],
+  "writing_style": {},
+  "communication_style": {}
+}
+
+8. Persona Architecture
+The Persona should not be a single giant JSON object.
+It should contain several layers.
+8.1 Identity Layer
+Contains:
+- Name
+- Professional title
+- Education
+- Location, where explicitly provided
+- Public profiles
+- Professional links
+8.2 Experience Layer
+Contains:
+- Employment
+- Internships
+- Freelance work
+- Open-source contributions
+- Volunteer work
+- Leadership
+8.3 Skill Layer
+Each skill should contain:
+{
+  "skill": "Python",
+  "category": "Programming",
+  "confidence": 0.94,
+  "evidence_count": 7
+}
+
+8.4 Project Layer
+Each project should contain:
+{
+  "name": "Project Name",
+  "description": "...",
+  "technologies": [],
+  "role": "...",
+  "outcomes": [],
+  "repository": "...",
+  "evidence": []
+}
+
+8.5 Knowledge Layer
+Represents conceptual knowledge areas.
+Example:
+AI
+ ├── Machine Learning
+ ├── LLMs
+ ├── RAG
+ ├── AI Agents
+ └── NLP
+
+8.6 Writing Style Layer
+Can contain:
+- Average sentence length
+- Technicality
+- Formality
+- Vocabulary
+- Tone
+- Formatting preferences
+- Common patterns
+The system should use this primarily to adapt generated content, not to falsely attribute content to the user.
+8.7 Preference Layer
+Examples:
+- Preferred job type
+- Preferred location
+- Remote/hybrid preference
+- Preferred technologies
+- Career goals
+- Industry preferences
+These should be explicitly provided or clearly inferred with user confirmation.
+9. Evidence System
+This is one of the most important components.
+Every important persona fact should ideally have supporting evidence.
+Example:
+{
+  "claim": "Experienced with LangChain",
+  "confidence": 0.92,
+  "evidence": [
+    {
+      "source": "GitHub",
+      "repository": "project-x"
+    },
+    {
+      "source": "Resume",
+      "section": "Skills"
+    }
+  ]
+}
+
+Evidence states
+Verified
+Directly supported by a source.
+Inferred
+Derived from multiple pieces of evidence.
+User-confirmed
+Explicitly confirmed by the user.
+Unknown
+No sufficient evidence.
+10. Data Sources
+MVP Sources
+The initial version should support:
+1. Resume upload
+Supported:
+- PDF
+- DOCX
+- TXT
+2. GitHub
+Retrieve, where authorized:
+- repositories
+- README files
+- languages
+- commits
+- contribution information
+- project metadata
+3. Manual profile
+Users can directly enter:
+- experience
+- skills
+- achievements
+- preferences
+11. Future Data Sources
+Potential integrations:
+- LinkedIn
+- X
+- Medium
+- Hashnode
+- Personal websites
+- Google Drive
+- Notion
+- Research repositories
+- ORCID
+- Dev.to
+- Kaggle
+- Behance
+- Dribbble
+- YouTube
+Availability should depend on official APIs, user authorization and platform policies.
+12. Data Ingestion Pipeline
+SOURCE
+  ↓
+CONNECTOR
+  ↓
+RAW DATA
+  ↓
+NORMALIZATION
+  ↓
+DOCUMENT CHUNKING
+  ↓
+ENTITY EXTRACTION
+  ↓
+RELATION EXTRACTION
+  ↓
+FACT VALIDATION
+  ↓
+PERSONA UPDATE
+  ↓
+EMBEDDING
+  ↓
+VECTOR STORE
+
+13. Document Processing
+For every document:
+Step 1
+Identify document type.
+Step 2
+Extract text.
+Step 3
+Split into logical chunks.
+Step 4
+Extract entities.
+Examples:
+Person
+Company
+Technology
+Project
+Date
+Achievement
+Publication
+Role
+
+Step 5
+Extract relationships.
+Example:
+Person
+ └── built → Project
+               └── uses → LangChain
+
+14. Persona Knowledge Graph
+A graph representation can be used for structured relationships.
+Example:
+USER
+ │
+ ├── worked_at → COMPANY
+ │
+ ├── built → PROJECT
+ │              │
+ │              ├── uses → TECHNOLOGY
+ │              └── published → ARTICLE
+ │
+ ├── contributed_to → REPOSITORY
+ │
+ ├── authored → PAPER
+ │
+ └── skilled_in → TECHNOLOGY
+
+Potential graph technologies:
+- PostgreSQL relational model for MVP
+- Neo4j
+- Amazon Neptune
+- Memgraph
+A graph database is not mandatory for the MVP.
+PostgreSQL can represent most initial relationships.
+15. Semantic Memory
+Unstructured content should also be embedded.
+Potential vector databases:
+- pgvector
+- Qdrant
+- Pinecone
+- Weaviate
+- Chroma
+For an MVP, PostgreSQL + pgvector can significantly simplify infrastructure.
+16. AI Architecture
+The system should use a Retrieval-Augmented Generation architecture.
+User Query
+    ↓
+Intent Detection
+    ↓
+Persona Retrieval
+    ↓
+Structured Data Retrieval
+    ↓
+Semantic Retrieval
+    ↓
+Evidence Retrieval
+    ↓
+Context Assembly
+    ↓
+LLM
+    ↓
+Validation
+    ↓
+Response
+
+17. Persona-Aware RAG
+Normal RAG:
+Question
+ ↓
+Vector Search
+ ↓
+Documents
+ ↓
+LLM
+
+Persona RAG:
+Question
+ ↓
+Intent
+ ↓
+Persona Graph
+ ↓
+Structured Facts
+ ↓
+Semantic Search
+ ↓
+Evidence
+ ↓
+LLM
+ ↓
+Claim Validation
+ ↓
+Answer
+
+18. Claim Validation
+Before returning important professional content, the system should check:
+Generated Claim
+       ↓
+Is evidence available?
+       │
+    ┌──┴──┐
+   YES    NO
+    │      │
+    ▼      ▼
+ Allow   Reject / Ask
+
+For example:
+"Led a team of 20 engineers."
+
+If there is no evidence, the system should not generate the claim as fact.
+19. Primary Features
+Feature 1: Account Creation
+Users can:
+- Sign up
+- Log in
+- Log out
+- Reset password
+- Manage account
+Authentication options:
+- Email/password
+- Google
+- GitHub OAuth
+20. Feature 2: Persona Onboarding
+The user sees:
+Build your AI Persona
+
+The platform asks them to connect sources.
+✓ Upload Resume
+○ Connect GitHub
+○ Connect LinkedIn
+○ Add Portfolio
+○ Connect Blogs
+○ Add Research
+
+21. Feature 3: Persona Dashboard
+Dashboard should display:
+Profile completeness
+Professional Persona
+████████░░ 82%
+
+Skills
+Python
+React
+AI/ML
+RAG
+FastAPI
+PostgreSQL
+
+Projects
+List of detected projects.
+Experience
+Timeline.
+Sources
+Connected sources.
+22. Feature 4: Persona Editor
+Users must be able to:
+- Edit facts
+- Delete facts
+- Confirm inferred facts
+- Add missing information
+- Correct incorrect information
+- View evidence
+Example:
+Python
+
+Sources:
+- Resume
+- GitHub
+- Project X
+- Project Y
+23. Feature 5: Ask My Persona
+Central conversational interface.
+Example:
+What projects have I built involving RAG?
+
+The system responds with projects and evidence.
+Another:
+What are my strongest areas for AI Engineer applications?
+
+24. Feature 6: Resume Generator
+Input:
+Job Description
+
+Processing:
+JD
+ ↓
+Requirement Extraction
+ ↓
+Persona Matching
+ ↓
+Evidence Retrieval
+ ↓
+Relevant Experience
+ ↓
+Resume Generation
+ ↓
+ATS Optimization
+ ↓
+Claim Validation
+
+Output:
+- Resume
+- Match analysis
+- Missing requirements
+- Evidence mapping
+25. Resume Evidence Mapping
+The user should be able to inspect why content was included.
+Example:
+Built a RAG pipeline using LangChain and FAISS.
+
+Evidence:
+✓ GitHub: project-x
+✓ Resume: Projects section
+✓ Research: RAG paper
+
+This significantly increases trust.
+26. Feature 7: Job Description Analysis
+User pastes a JD.
+System extracts:
+Required Skills
+Preferred Skills
+Experience
+Education
+Responsibilities
+Technologies
+Domain
+
+Then compares against the Persona.
+27. Feature 8: Career Gap Analysis
+Output:
+Strongly supported
+Python
+RAG
+FastAPI
+
+Partially supported
+Docker
+Cloud
+
+Not demonstrated
+Kubernetes
+AWS
+
+The platform should explain the evidence behind each classification.
+28. Feature 9: Interview Preparation
+The system generates questions based on:
+1. JD requirements
+2. User's actual projects
+3. User's experience
+4. Potential weak areas
+Modes:
+- Technical interview
+- HR interview
+- Project interview
+- System design
+- Behavioral interview
+29. Feature 10: Personal Content Generator
+Users can generate:
+- LinkedIn posts
+- X posts
+- Blog posts
+- Portfolio descriptions
+- Project announcements
+- Technical articles
+The content should be grounded in the user's actual experience.
+30. Feature 11: Portfolio Generator
+User selects:
+Create my developer portfolio.
+
+System uses Persona data to generate:
+- About
+- Experience
+- Projects
+- Skills
+- Research
+- Achievements
+- Contact
+31. Feature 12: Personal Knowledge Search
+Users can ask:
+Where have I used PostgreSQL?
+
+What did I write about RAG?
+
+Which project used FastAPI?
+
+What were my contributions to open source?
+
+The system searches across connected sources.
+32. Feature 13: Proposal Generator
+For freelancers:
+Input:
+Client Requirement
+
+Output:
+- Relevant experience
+- Relevant projects
+- Proposal
+- Portfolio links
+- Technical approach
+33. Feature 14: Personal AI Agent
+Users can eventually expose a public AI interface.
+Example:
+harsh.ai
+     ↓
+Ask Harsh AI
+
+Visitors could ask:
+What does Harsh specialize in?
+
+What projects has he built?
+
+Does he have experience with RAG?
+
+The system only exposes information explicitly marked as public.
+34. Privacy Architecture
+Privacy is critical.
+The system must distinguish:
+PRIVATE
+PUBLIC
+SHARED
+
+Every piece of information should have a visibility state.
+Example:
+{
+  "data": "Project X",
+  "visibility": "private"
+}
+
+35. User Data Ownership
+Users should be able to:
+- View their stored information
+- Correct it
+- Delete it
+- Disconnect sources
+- Export persona data
+- Delete their account
+The product should avoid making users feel that their data has become trapped inside the platform.
+36. Security Requirements
+The system should implement:
+Authentication
+OAuth 2.0 / OIDC.
+Authorization
+Role-based access control.
+Encryption
+- TLS in transit
+- Encryption at rest
+Secrets
+OAuth tokens must never be exposed to the frontend.
+API security
+- Rate limiting
+- Request validation
+- JWT/session validation
+- CORS configuration
+37. Data Storage
+Recommended MVP architecture:
+PostgreSQL
+    │
+    ├── Users
+    ├── Personas
+    ├── Skills
+    ├── Projects
+    ├── Experience
+    ├── Sources
+    ├── Evidence
+    ├── Preferences
+    └── Documents
+
+PostgreSQL + pgvector
+    │
+    └── Embeddings
+
+This avoids introducing too many databases initially.
+38. Suggested Technology Stack
+Given the type of system you're building, I'd use:
+Frontend
+- Next.js
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+Backend
+Either:
+Option A
+Next.js API + separate AI service
+or
+Option B
+FastAPI
+I would personally choose:
+Next.js
++
+FastAPI
+
+because the AI/data processing layer will become substantial.
+39. AI Stack
+LLM
+Provider abstraction:
+OpenAI
+Anthropic
+Google Gemini
+
+Don't tightly couple the application to one provider.
+Embeddings
+Use provider abstraction.
+Possible:
+- OpenAI embeddings
+- Gemini embeddings
+- Voyage
+- Cohere
+RAG
+- LangChain or LlamaIndex
+- pgvector
+However, avoid putting every piece of application logic inside LangChain.
+Keep your domain logic separate.
+40. Background Processing
+Persona ingestion shouldn't happen synchronously.
+Use:
+API
+ ↓
+Job Queue
+ ↓
+Worker
+ ↓
+Ingestion
+ ↓
+Extraction
+ ↓
+Embedding
+ ↓
+Persona Update
+
+Potential technologies:
+- Redis + Celery
+- Redis + BullMQ
+- RabbitMQ
+- Kafka later
+For MVP:
+Redis + Celery/BullMQ
+is sufficient.
+41. High-Level Backend Architecture
+                 Next.js
+                    │
+                    ▼
+               API Gateway
+                    │
+          ┌─────────┴─────────┐
+          ▼                   ▼
+    User Service         Persona API
+                              │
+               ┌──────────────┼──────────────┐
+               ▼              ▼              ▼
+          Source Service   AI Service    Evidence Service
+               │              │
+               ▼              ▼
+          Ingestion       RAG Engine
+               │              │
+               └──────┬───────┘
+                      ▼
+                  PostgreSQL
+                      │
+                   pgvector
+
+42. Core Database Entities
+User
+id
+email
+name
+created_at
+updated_at
+
+Persona
+id
+user_id
+version
+status
+created_at
+updated_at
+
+Source
+id
+persona_id
+type
+url
+provider
+status
+last_synced
+
+Skill
+id
+persona_id
+name
+category
+confidence
+
+Project
+id
+persona_id
+name
+description
+technologies
+
+Experience
+id
+persona_id
+company
+role
+start_date
+end_date
+description
+
+Evidence
+id
+persona_id
+entity_type
+entity_id
+source_id
+content
+confidence
+
+Document
+id
+source_id
+title
+content
+metadata
+
+Embedding
+id
+document_id
+chunk
+embedding
+metadata
+
+43. API Requirements
+Example APIs:
+POST /auth/signup
+POST /auth/login
+
+GET /persona
+PATCH /persona
+
+POST /sources
+GET /sources
+DELETE /sources/:id
+
+POST /sources/github/connect
+
+POST /documents/upload
+
+GET /skills
+GET /projects
+GET /experience
+
+POST /chat
+
+POST /resume/generate
+
+POST /jd/analyze
+
+POST /interview/start
+
+POST /portfolio/generate
+
+44. Chat API
+Request:
+{
+  "message": "What projects have I built involving RAG?"
+}
+
+Response:
+{
+  "answer": "...",
+  "sources": [
+    {
+      "type": "github",
+      "title": "Project X"
+    }
+  ]
+}
+
+45. Resume API
+Request:
+{
+  "job_description": "...",
+  "format": "one_page",
+  "target_role": "AI Engineer"
+}
+
+Response:
+{
+  "resume": "...",
+  "matched_requirements": [],
+  "missing_requirements": [],
+  "evidence": []
+}
+
+46. Persona Update Strategy
+Whenever a new source is connected:
+New Source
+    ↓
+Compare with existing Persona
+    ↓
+Existing fact?
+ ┌──┴──┐
+YES   NO
+ │     │
+ ▼     ▼
+Update  Create
+ │
+ ▼
+Resolve conflicts
+
+Example:
+Resume says:
+React
+
+GitHub evidence says:
+React + TypeScript
+
+Persona can consolidate the information.
+47. Conflict Resolution
+Suppose:
+Resume:
+Software Engineer
+
+LinkedIn:
+AI Engineer
+
+GitHub:
+AI/ML projects
+
+The system should not silently decide.
+Instead:
+Conflicting professional title detected
+
+Then ask the user to confirm.
+48. Persona Confidence
+Every automatically extracted fact should have confidence.
+Example:
+Fact: Python
+Confidence: High
+
+Evidence:
+GitHub × 8
+Resume × 1
+Portfolio × 1
+
+This allows the system to distinguish strong evidence from weak evidence.
+49. Hallucination Prevention
+The system should follow:
+No evidence, no factual claim.
+
+For professional outputs, unsupported claims should be blocked.
+If the AI wants to say:
+"Led a team"
+
+but cannot find evidence:
+Claim rejected.
+
+It may instead say:
+"Worked on..."
+
+if supported.
+50. UX Requirements
+The UI should feel like a modern AI application.
+Primary navigation:
+Dashboard
+Persona
+Sources
+Ask AI
+Career
+Content
+Portfolio
+Settings
+
+51. Dashboard
+The dashboard should show:
+Good morning, Harsh
+
+Your Persona
+82% complete
+
+────────────────────
+
+Skills
+Projects
+Experience
+
+────────────────────
+
+Recent Updates
+
+GitHub synchronized
+New project detected
+
+────────────────────
+
+Quick Actions
+
+[Ask My Persona]
+[Create Resume]
+[Analyze JD]
+[Prepare Interview]
+
+52. Ask AI Interface
+The main chat interface should allow:
+Ask anything about your professional identity...
+
+Suggested prompts:
+- "What are my strongest skills?"
+- "Find my projects involving AI."
+- "Create a resume for this JD."
+- "What experience demonstrates backend development?"
+- "What should I learn next?"
+53. Persona Explorer
+Users should be able to visually explore:
+Skills
+   ↓
+Projects
+   ↓
+Technologies
+   ↓
+Experience
+   ↓
+Evidence
+
+This can eventually become a graph visualization.
+54. Source Management
+Each source should display:
+GitHub
+Connected ✓
+
+Last synchronized:
+Today
+
+Repositories:
+23
+
+[Sync]
+[Disconnect]
+
+55. MVP Scope
+I strongly recommend limiting the first release.
+MVP includes:
+Authentication
+✓ Signup
+✓ Login  
+Sources
+✓ Resume upload
+✓ GitHub integration
+✓ Manual profile  
+Persona
+✓ Skills
+✓ Projects
+✓ Experience
+✓ Education
+✓ Achievements
+✓ Evidence  
+AI
+✓ Persona chat
+✓ RAG
+✓ Evidence retrieval  
+Career
+✓ JD analysis
+✓ Resume generation
+✓ Interview questions  
+Knowledge
+✓ Personal search  
+56. Phase 2
+Add:
+- LinkedIn
+- Portfolio ingestion
+- Medium
+- Hashnode
+- X
+- Cover letters
+- Job application answers
+- Portfolio generation
+- Content generation
+- Career gap analysis
+57. Phase 3
+Add:
+- Personal AI website
+- Public/private persona
+- Freelancer proposals
+- Research assistant
+- Meeting preparation
+- Email integration
+- Calendar integration
+- Personal knowledge management
+58. Phase 4
+Long-term:
+Personal AI Agent
+The system can perform approved actions.
+For example:
+User
+ ↓
+"Find jobs relevant to me."
+ ↓
+Search
+ ↓
+Evaluate
+ ↓
+Rank based on explicit criteria
+ ↓
+Ask approval
+ ↓
+Generate application
+
+Actions should require explicit confirmation when they have external consequences.
+59. Non-Functional Requirements
+Performance
+Normal persona queries:
+Target: <3 seconds excluding LLM latency.
+Resume generation:
+Target: <15 seconds.
+Large ingestion jobs should run asynchronously.
+Scalability
+The system should support:
+- 10,000 users in early production
+- 100,000+ documents
+- Millions of embeddings
+Architecture should allow horizontal scaling.
+60. Reliability
+Target:
+- API availability: 99.9%
+- Background jobs retry automatically
+- Failed source synchronizations should not corrupt the persona
+- Persona versions should be recoverable
+61. Observability
+Use:
+- structured logs
+- request tracing
+- application metrics
+- AI latency monitoring
+- token usage tracking
+- ingestion failures
+- connector failures
+Potential stack:
+Prometheus
+Grafana
+OpenTelemetry
+Sentry
+
+62. AI Evaluation
+This product needs an evaluation framework.
+Test:
+Factuality
+Does the AI accurately represent the person?
+Groundedness
+Does every claim have evidence?
+Retrieval quality
+Does it retrieve the correct projects?
+Resume relevance
+Does generated content match the JD?
+Hallucination rate
+How frequently does the AI invent experience?
+Persona consistency
+Does the AI give consistent answers across sessions?
+63. Evaluation Dataset
+Create synthetic and real test personas.
+Example:
+Persona A
+20 projects
+10 skills
+5 jobs
+3 papers
+50 documents
+
+Create questions:
+What projects use Python?
+
+What research has this person done?
+
+Does the person have AWS experience?
+
+Expected answers can be evaluated automatically.
+64. Business Model
+Potential SaaS model:
+Free
+- 1 persona
+- Limited sources
+- Limited AI queries
+- Basic resume generation
+Pro
+Potentially:
+- Unlimited sources
+- Advanced persona
+- Advanced AI
+- Resume generation
+- Interview preparation
+- Portfolio
+- Content generation
+Professional
+For:
+- Freelancers
+- Consultants
+- Researchers
+- Creators
+Additional features:
+- Public AI profile
+- Custom domain
+- Advanced integrations
+65. B2B Opportunity
+Eventually, the same architecture could support organizations.
+Imagine:
+Company AI Workforce Graph
+
+Instead of one person's persona:
+Company
+ │
+ ├── Employee A
+ ├── Employee B
+ ├── Employee C
+ └── Employee D
+
+Then:
+"Who in our organization has experience with Kubernetes?"
+
+"Who has worked on RAG systems?"
+
+"Who has published research on NLP?"
+
+This becomes an organizational knowledge system.
+That is a much larger enterprise opportunity, but it should not be part of the initial MVP.
+66. Key Differentiator
+The product should differentiate itself from ordinary AI assistants through:
+Persistent identity
+AI understands the user across sessions.
+Multi-source context
+Information comes from multiple sources.
+Evidence-backed persona
+Claims have provenance.
+Structured identity
+The system understands relationships between projects, skills and experiences.
+Personalization
+Outputs reflect the individual's actual history.
+Evolution
+Persona changes as the person changes.
+67. Core Product Loop
+The fundamental loop should be:
+CONNECT
+   ↓
+UNDERSTAND
+   ↓
+STRUCTURE
+   ↓
+VERIFY
+   ↓
+REMEMBER
+   ↓
+ASSIST
+   ↓
+LEARN FROM UPDATES
+   ↓
+UNDERSTAND BETTER
+
+That's the heart of the product.
+68. Example End-to-End Scenario
+A developer signs up.
+Step 1
+Uploads resume.
+Step 2
+Connects GitHub.
+Step 3
+System discovers:
+17 repositories
+8 technologies
+5 projects
+3 domains
+
+Step 4
+AI creates initial persona.
+Step 5
+User reviews:
+✓ Python
+✓ React
+✓ FastAPI
+✓ RAG
+
+✗ Kubernetes
+
+User confirms.
+Step 6
+User uploads a job description.
+Step 7
+System analyzes:
+JD requirements: 12
+
+Strong evidence: 7
+Partial evidence: 3
+Missing: 2
+
+Step 8
+User clicks:
+Generate Resume
+
+Step 9
+AI selects relevant experience.
+Step 10
+Each generated claim is validated.
+Step 11
+Resume is produced.
+Step 12
+User asks:
+"Prepare me for this interview."
+
+The same Persona is reused.
+69. Success Metrics
+The most important metrics shouldn't simply be:
+Number of resumes generated.
+
+Track:
+Persona Activation
+Percentage of users who successfully create a persona.
+Persona Completeness
+Average percentage of persona fields populated.
+Evidence Coverage
+Percentage of generated factual claims with evidence.
+AI Trust
+Percentage of responses accepted without correction.
+Weekly Persona Usage
+How often users interact with their persona.
+Cross-feature usage
+Number of users using multiple capabilities.
+For example:
+Resume → Interview → Portfolio
+
+This indicates that the Persona itself is becoming valuable.
+70. Risks
+Risk 1: Integration limitations
+Some platforms restrict API access.
+Mitigation: Build connector abstraction and support user uploads/imports.
+Risk 2: Hallucination
+AI may invent experience.
+Mitigation: Evidence layer + claim validation.
+Risk 3: Privacy
+The system contains extremely valuable personal data.
+Mitigation: Encryption, strict access control, visibility controls, deletion/export.
+Risk 4: Too broad
+Trying to build a personal AI operating system immediately.
+Mitigation: Start with career use cases.
+Risk 5: Low-frequency usage
+Users may only generate resumes occasionally.
+Mitigation: Build recurring use cases such as personal search, interview preparation, content creation and career analysis.
+71. Recommended MVP
+If you were building this yourself, I would actually make the first version much smaller:
+                  PERSONAL AI
+                       │
+         ┌─────────────┼─────────────┐
+         │             │             │
+       Resume        GitHub       Manual
+         │             │          Profile
+         └─────────────┼─────────────┘
+                       ↓
+                PERSONA ENGINE
+                       ↓
+               Evidence + RAG
+                       ↓
+             ┌─────────┼─────────┐
+             │         │         │
+          Ask AI    Resume      JD
+                    Builder   Analyzer
+                       │
+                       ↓
+                  Interview
+                    Prep
+
+Don't build LinkedIn + X + Medium + Gmail + Notion + everything on day one.
+Build the engine first.
+72. The Actual Product Thesis
+The strongest way I would define this product is:
+A persistent, evidence-backed AI representation of a person that understands their professional identity, knowledge, experience, work and preferences, and uses that context to perform personalized tasks.
+
+And the hierarchy becomes:
+                    PERSONAL AI
+                         │
+                  PERSONA ENGINE
+                         │
+        ┌────────────────┼────────────────┐
+        │                │                │
+    Knowledge        Experience        Preferences
+        │                │                │
+        └────────────────┼────────────────┘
+                         │
+                     EVIDENCE
+                         │
+                    AI CONTEXT
+                         │
+     ┌───────────┬───────┼───────┬───────────┐
+     │           │       │       │           │
+   Career     Content  Search  Research  Communication
+     │
+ ┌───┼────┬──────┐
+ │   │    │      │
+CV  JD  Interview Jobs
+
+The resume generator is therefore not the product.
+It is the first application that demonstrates why having a persistent personal AI context is valuable.
+If you execute the persona/evidence layer correctly, you can keep adding applications without rebuilding the core system each time.
+And given your existing experience with RAG, LangChain, FAISS/vector databases, FastAPI, React/Next.js and AI applications, this is technically within the range of a serious portfolio/startup project rather than just a conceptual idea.

@@ -1,0 +1,21 @@
+{
+  "name": "personaai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A persistent, evidence-backed AI representation of a person's professional identity.",
+  "scripts": {
+    "infra:up": "docker compose -f infra/docker-compose.yml up -d",
+    "infra:down": "docker compose -f infra/docker-compose.yml down",
+    "dev:web": "pnpm --dir apps/web dev",
+    "dev:api": "cd services/api && .venv/Scripts/python -m uvicorn app.main:app --reload --port 8000",
+    "dev:worker": "cd services/api && .venv/Scripts/python -m celery -A app.workers.celery_app worker --pool=solo -l info",
+    "build:web": "pnpm --dir apps/web build",
+    "lint:web": "pnpm --dir apps/web exec eslint src --max-warnings=0",
+    "lint:api": "cd services/api && .venv/Scripts/python -m ruff check app && .venv/Scripts/python -m mypy app",
+    "test:web": "pnpm --dir apps/web exec tsc --noEmit",
+    "test:api": "cd services/api && .venv/Scripts/python -m pytest -q",
+    "test": "pnpm test:api && pnpm test:web",
+    "lint": "pnpm lint:api && pnpm lint:web"
+  },
+  "packageManager": "pnpm@10.30.3"
+}
