@@ -23,6 +23,8 @@ _TABLES = [
     "one_time_tokens",
     "refresh_tokens",
     "oauth_accounts",
+    "chat_messages",
+    "chat_sessions",
     "ai_calls",
     "chunks",
     "documents",

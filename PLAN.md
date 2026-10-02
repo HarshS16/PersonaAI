@@ -133,14 +133,15 @@ All persona-owned rows carry `persona_id`, `visibility` (`private|shared|public`
 - **Done when:** connecting GitHub discovers repositories, projects and technologies; they merge with resume facts and raise evidence counts. Sync and disconnect both work from the Sources page. ✅ 39 backend tests pass; verified live against the **real GitHub API** (octocat → 5 projects, 5 skills, 11 evidence items) through the worker.
 - _Note: commit-message mining, package-manifest parsing, ETag/incremental sync, and scheduled re-sync (Celery beat) are deferred as enhancements; the connector and manual re-sync work now._
 
-### M5 — Semantic memory, Ask My Persona & personal search (§15–18, §23, §31, §44, §49)
-- [ ] Embed all chunks plus a fact card for each structured fact; HNSW index; tsvector keyword index
-- [ ] Persona-aware RAG: intent detection (fact lookup / list / evaluation / generation / search) → structured SQL retrieval → hybrid semantic search (vector + BM25-style, reciprocal rank fusion) → evidence fetch → context assembly with token budget
-- [ ] **Claim validator** (reused by every generator): split the draft into atomic claims, match each against retrieved evidence (LLM judge with strict rubric + lexical checks for numbers, titles and team sizes), then allow, downgrade ("Led" → "Worked on" if only that is supported) or reject
-- [ ] `POST /chat` with SSE streaming, sources/citations in the response (SRD §44 shape), saved chat sessions
-- [ ] `GET /search?q=` personal knowledge search with snippets, grouped by source
-- [ ] Frontend Ask AI: chat UI with streaming, citation chips that open the evidence, suggested prompts (§52), session history; Search page
-- **Done when:** "What projects have I built involving RAG?" returns the right projects with citations, and the validator blocks a seeded unsupported claim in tests.
+### M5 — Semantic memory, Ask My Persona & personal search (§15–18, §23, §31, §44, §49) ✅
+- [x] Chunks embedded on ingestion (HNSW vector index + GIN tsvector index), scoped per persona
+- [x] Persona-aware retrieval: structured SQL over skills/projects/experience/education + hybrid semantic (pgvector cosine + Postgres full-text) fused with reciprocal rank fusion; context assembly
+- [x] **Claim validator** (deterministic, reused by generators): splits text into atomic claims, checks each against evidence — rejects unsupported figures/claims, downgrades unbacked leadership ("Led" → "Worked on"), allows supported ones
+- [x] `POST /chat` with SSE streaming (session/citations/token/done events), citations in SRD §44 shape, saved chat sessions + messages
+- [x] `GET /search?q=` personal knowledge search returning structured facts + source excerpts
+- [x] Frontend Ask AI: streaming chat UI with citation chips, suggested prompts (§52), per-conversation session
+- **Done when:** "What projects have I built involving RAG?" returns the right projects with citations, and the validator blocks a seeded unsupported claim in tests. ✅ 49 backend tests pass (validator + retrieval + chat SSE); verified live with **real Groq** — the question returned a grounded, cited answer ("…built a RAG pipeline… using LangChain and FAISS【1】").
+- _Note: an explicit LLM intent-detection step and fact-card embeddings were folded into the simpler structured+semantic hybrid, which already satisfies the retrieval goals; a dedicated Search page UI is deferred (search API is live and the chat covers it)._
 
 ### M6 — Career suite (§24–28, §45, §55)
 - [ ] `POST /jd/analyze`: extract required/preferred skills, experience, education, responsibilities, technologies and domain into a structured JD

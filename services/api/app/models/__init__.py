@@ -14,6 +14,7 @@ _MODEL_MODULES: list[str] = [
     "app.models.facts",
     "app.models.evidence",
     "app.models.ingestion",
+    "app.models.chat",
 ]
 
 
