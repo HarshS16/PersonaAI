@@ -35,6 +35,7 @@ function initialValues(config: ResourceConfig, fact?: Fact): Values {
     else if (f.type === "select" && f.options?.length) v[f.name] = f.options[0].value;
     else v[f.name] = "";
   }
+  v.visibility = (fact?.visibility as string) ?? "private";
   return v;
 }
 
@@ -78,6 +79,8 @@ export function FactFormDialog({
       }
     }
 
+    payload.visibility = values.visibility ?? "private";
+
     setSubmitting(true);
     try {
       await onSubmit(payload);
@@ -101,6 +104,22 @@ export function FactFormDialog({
           {config.fields.map((f) => (
             <Field key={f.name} def={f} value={values[f.name]} onChange={(v) => set(f.name, v)} />
           ))}
+          <div className="space-y-2">
+            <Label htmlFor="visibility">Visibility</Label>
+            <Select
+              value={String(values.visibility ?? "private")}
+              onValueChange={(v) => set("visibility", v)}
+            >
+              <SelectTrigger id="visibility">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="private">Private — only you</SelectItem>
+                <SelectItem value="shared">Shared — people with a link</SelectItem>
+                <SelectItem value="public">Public — anyone</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

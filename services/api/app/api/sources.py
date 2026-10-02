@@ -11,7 +11,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user
 from app.core.db import get_session
 from app.core.errors import NotFoundError
-from app.domain.persona import compute_completeness, get_or_create_persona
+from app.domain.persona import (
+    compute_completeness,
+    get_or_create_persona,
+    recompute_entities,
+)
 from app.models.evidence import Evidence
 from app.models.ingestion import Conflict, Job, Source
 from app.models.user import User
@@ -44,10 +48,18 @@ async def disconnect_source(
     if source is None or source.persona_id != persona.id:
         raise NotFoundError("Source not found")
 
-    # Remove evidence tied to this source (documents/chunks cascade via FK).
+    # Note which facts this source's evidence supports, so we can recompute their
+    # confidence after removing it (documents/chunks cascade via FK).
+    affected_rows = await session.execute(
+        select(Evidence.entity_type, Evidence.entity_id).where(Evidence.source_id == source_id)
+    )
+    affected = {(et, eid) for et, eid in affected_rows.all()}
+
     await session.execute(delete(Evidence).where(Evidence.source_id == source_id))
     await session.delete(source)
     await session.flush()
+
+    await recompute_entities(session, affected)
     await compute_completeness(session, persona)
     response.status_code = 204
     return response

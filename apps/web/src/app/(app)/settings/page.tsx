@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Download } from "lucide-react";
 import { useMe } from "@/hooks/use-auth";
 import { authApi, type Me } from "@/lib/auth";
+import { accountApi } from "@/lib/account";
 import { ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +15,17 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function SettingsPage() {
   const { data: me, isLoading } = useMe();
@@ -30,6 +44,8 @@ export default function SettingsPage() {
           <ProfileCard me={me} />
           <ChangePasswordCard />
           <ConnectedLoginsCard me={me} />
+          <ExportCard />
+          <DeleteAccountCard />
         </>
       )}
     </div>
@@ -145,9 +161,101 @@ function ConnectedLoginsCard({ me }: { me: Me }) {
         ) : (
           <p className="text-sm text-muted-foreground">No connected logins.</p>
         )}
-        <p className="mt-4 text-xs text-muted-foreground">
-          Data export and account deletion arrive in M8.
-        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ExportCard() {
+  const [busy, setBusy] = useState(false);
+
+  async function run(fn: () => Promise<void>) {
+    setBusy(true);
+    try {
+      await fn();
+    } catch {
+      toast.error("Export failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Your data</CardTitle>
+        <CardDescription>Download everything in your persona. Your data is yours.</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-wrap gap-2">
+        <Button variant="outline" disabled={busy} onClick={() => run(accountApi.exportJson)}>
+          <Download className="mr-2 h-4 w-4" />
+          Export JSON
+        </Button>
+        <Button variant="outline" disabled={busy} onClick={() => run(accountApi.exportZip)}>
+          <Download className="mr-2 h-4 w-4" />
+          Export ZIP (with documents)
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+function DeleteAccountCard() {
+  const router = useRouter();
+  const [password, setPassword] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
+  async function confirmDelete() {
+    setDeleting(true);
+    try {
+      await accountApi.deleteAccount(password);
+      toast.success("Account deleted");
+      router.push("/signup");
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Delete failed");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  return (
+    <Card className="border-destructive/40">
+      <CardHeader>
+        <CardTitle className="text-base text-destructive">Delete account</CardTitle>
+        <CardDescription>
+          Permanently deletes your account and all persona data. This cannot be undone.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="space-y-2">
+          <Label htmlFor="del-pw">Confirm your password</Label>
+          <Input
+            id="del-pw"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <AlertDialog>
+          <AlertDialogTrigger render={<Button variant="destructive" />}>
+            Delete my account
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Everything — your persona, sources, documents, and generations — is permanently
+                removed. Export your data first if you want a copy.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} disabled={deleting}>
+                {deleting ? "Deleting…" : "Delete permanently"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );

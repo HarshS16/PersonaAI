@@ -32,6 +32,14 @@ class LocalStorage:
         with contextlib.suppress(FileNotFoundError):
             (self.base / rel).unlink()
 
+    def delete_prefix(self, prefix: str) -> None:
+        """Remove an entire key prefix directory (e.g. all of a persona's files)."""
+        import shutil
+
+        target = self.base / prefix
+        if target.is_dir():
+            shutil.rmtree(target, ignore_errors=True)
+
 
 def get_storage() -> LocalStorage:
     # Only local is implemented for the MVP; S3 adapter is a later addition.

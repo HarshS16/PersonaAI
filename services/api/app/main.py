@@ -17,14 +17,17 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from app import __version__
 from app.api import (
+    account,
     auth,
     career,
     chat,
+    dashboard,
     documents,
     github,
     health,
     oauth,
     persona,
+    public,
     sources,
 )
 from app.core.config import settings
@@ -70,12 +73,16 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(auth.router)
     app.include_router(oauth.router)
+    # Dashboard before persona so /persona/graph wins over /persona/{resource}.
+    app.include_router(dashboard.router)
     app.include_router(persona.router)
     app.include_router(documents.router)
     app.include_router(sources.router)
     app.include_router(github.router)
     app.include_router(chat.router)
     app.include_router(career.router)
+    app.include_router(account.router)
+    app.include_router(public.router)
 
     return app
 

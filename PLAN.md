@@ -152,18 +152,19 @@ All persona-owned rows carry `persona_id`, `visibility` (`private|shared|public`
 - **Done when:** the full SRD §68 end-to-end scenario works: upload resume → connect GitHub → confirm → analyze JD → generate validated resume → interview prep. ✅ 54 backend tests pass; verified live with **real Groq**: JD → techs extracted, gap (Python/FastAPI/PostgreSQL strong, Kubernetes/AWS not demonstrated), resume with 67% ATS coverage, grounded interview questions.
 - _Note: PDF/DOCX export (browser print / WeasyPrint), two-page format, and interview answer-feedback are deferred; markdown export + copy are live._
 
-### M7 — Dashboard, onboarding & Persona Explorer (§20, §21, §51, §53)
-- [ ] Onboarding wizard ("Build your AI Persona") with source checklist and progress
-- [ ] Dashboard: greeting, completeness bar, top skills, projects, experience timeline, recent updates feed, quick actions
-- [ ] Persona Explorer: interactive graph (React Flow) of Skills ↔ Projects ↔ Technologies ↔ Experience ↔ Evidence, with filter and focus
-- **Done when:** the dashboard reflects live persona state and the explorer shows a navigable graph for the sample persona.
+### M7 — Dashboard, onboarding & Persona Explorer (§20, §21, §51, §53) ✅
+- [x] Onboarding card ("Build your AI Persona") with a source checklist (resume / GitHub / manual) and progress, shown while the persona is sparse
+- [x] Dashboard: time-aware greeting, completeness bar + counts, top skills, experience timeline, recent-updates feed (derived from synced sources + generations), quick actions
+- [x] Persona Explorer: interactive React Flow graph (via @xyflow/react) of persona → skills / projects / experience / education, with project→skill "uses" edges, laid out by type; linked from the Persona page
+- [x] Backend `GET /dashboard` summary and `GET /persona/graph` (registered before the `/persona/{resource}` catch-all so it isn't shadowed)
+- **Done when:** the dashboard reflects live persona state and the explorer shows a navigable graph for the sample persona. ✅ 58 backend tests pass; verified live — empty vs. populated dashboard (completeness 0.7, top skills, timeline, "resume.txt synced — 8 facts"), and the graph (1 persona + 6 skills + 1 experience + 1 education, 8 edges, 8 evidence).
 
-### M8 — Privacy & data ownership (§34, §35)
-- [ ] Visibility enforced in every query path (the public API can only read `public` rows)
-- [ ] Export the full persona (JSON + original documents ZIP)
-- [ ] Delete individual facts, sources (cascade derived evidence and recompute), and the whole account (hard delete + token revocation)
-- [ ] Settings UI: privacy, connected sources, export, delete account
-- **Done when:** export round-trips and account deletion leaves no user rows, files or embeddings (verified by test).
+### M8 — Privacy & data ownership (§34, §35) ✅
+- [x] Visibility enforced: a no-auth `GET /public/personas/{id}` returns ONLY `public`-visibility facts; everything is private by default
+- [x] Export the full persona — `GET /account/export` (JSON) and `GET /account/export.zip` (persona.json + original document text)
+- [x] Delete individual facts (soft delete, M2) and sources (cascade evidence **and recompute** affected facts' confidence, demoting to inferred when evidence is gone); `POST /account/delete` hard-deletes the account (password-confirmed, storage purged, all data cascades, cookies cleared)
+- [x] Settings UI: a per-fact visibility selector in the editor, plus an "Your data" export card and a password-confirmed "Delete account" card
+- **Done when:** export round-trips and account deletion leaves no user rows, files or embeddings (verified by test). ✅ 64 backend tests pass; verified live — visibility toggle flips public exposure, JSON+ZIP export, and account deletion returns 404 on the persona afterward (full cascade).
 
 ### M9 — AI evaluation framework (§62, §63)
 - [ ] Synthetic personas (e.g. Persona A: 20 projects, 10 skills, 5 jobs, 3 papers, 50 documents) generated as fixtures

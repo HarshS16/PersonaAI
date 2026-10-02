@@ -107,6 +107,63 @@ async def recompute_fact_confidence(
         fact.evidence_count = len(items)
 
 
+_ENTITY_MODELS: dict[EntityType, Any] = {}
+
+
+def _entity_models() -> dict[EntityType, Any]:
+    if not _ENTITY_MODELS:
+        from app.models.facts import (
+            Achievement,
+            Certification,
+            Education,
+            Experience,
+            Project,
+            Publication,
+            Skill,
+        )
+
+        _ENTITY_MODELS.update(
+            {
+                EntityType.skill: Skill,
+                EntityType.experience: Experience,
+                EntityType.project: Project,
+                EntityType.education: Education,
+                EntityType.achievement: Achievement,
+                EntityType.publication: Publication,
+                EntityType.certification: Certification,
+                EntityType.preference: Preference,
+                EntityType.knowledge_area: KnowledgeArea,
+            }
+        )
+    return _ENTITY_MODELS
+
+
+async def recompute_entities(
+    session: AsyncSession, refs: set[tuple[EntityType, uuid.UUID]]
+) -> None:
+    """After evidence changes, recompute confidence for the affected facts.
+
+    A fact that has lost all its evidence drops to the inferred state with low
+    confidence rather than being deleted (the user may still want it).
+    """
+    models = _entity_models()
+    for entity_type, entity_id in refs:
+        model = models.get(entity_type)
+        if model is None:
+            continue
+        fact = await session.get(model, entity_id)
+        if fact is None:
+            continue
+        items = await evidence_for(session, entity_type, entity_id)
+        if items:
+            fact.confidence = compute_confidence([e.confidence for e in items])
+        else:
+            fact.confidence = EVIDENCE_WEIGHTS["inferred"]
+            fact.state = EvidenceState.inferred
+        if hasattr(fact, "evidence_count"):
+            fact.evidence_count = len(items)
+
+
 # ---------------------------------------------------------------------------
 # Completeness
 # ---------------------------------------------------------------------------

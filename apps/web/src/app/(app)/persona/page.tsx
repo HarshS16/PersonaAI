@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { Network } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePersonaFull } from "@/hooks/use-persona";
@@ -33,7 +35,16 @@ export default function PersonaPage() {
             Everything here is editable and evidence-backed.
           </p>
         </div>
-        <VersionHistory />
+        <div className="flex items-center gap-2">
+          <Link
+            href="/persona/explorer"
+            className="flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted"
+          >
+            <Network className="h-4 w-4" />
+            Explorer
+          </Link>
+          <VersionHistory />
+        </div>
       </div>
 
       <div className="rounded-lg border p-4">
