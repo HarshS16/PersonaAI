@@ -101,8 +101,26 @@ async def test_signup_validation(client: AsyncClient) -> None:
 
 
 @pytest.mark.parametrize("provider", ["github", "google"])
-async def test_oauth_login_unconfigured(client: AsyncClient, provider: str) -> None:
-    # No client IDs in the test env -> 503, not a crash.
+async def test_oauth_login_unconfigured(
+    client: AsyncClient, provider: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Force the provider to look unconfigured regardless of local .env, then
+    # expect a clean 503 rather than a crash.
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, f"{provider}_client_id", "")
     resp = await client.get(f"/auth/{provider}/login", follow_redirects=False)
     assert resp.status_code == 503
     assert resp.json()["error"]["code"] == "provider_not_configured"
+
+
+async def test_oauth_login_configured_redirects(
+    client: AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "github_client_id", "test-client-id")
+    resp = await client.get("/auth/github/login", follow_redirects=False)
+    assert resp.status_code == 302
+    assert resp.headers["location"].startswith("https://github.com/login/oauth/authorize")
+    assert "pa_oauth_state" in resp.cookies

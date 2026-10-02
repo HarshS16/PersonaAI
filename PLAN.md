@@ -101,14 +101,15 @@ All persona-owned rows carry `persona_id`, `visibility` (`private|shared|public`
 - **Done when:** a user can sign up, log in, reset their password and log in with GitHub. ✅ 14 backend tests (token expiry, refresh rotation, reuse detection, change-password) pass; live end-to-end signup → cookies → `/me` → verification email verified through the Next proxy. GitHub/Google login paths built; need OAuth app credentials to exercise live (flagged for owner).
 - _Note: XFF-based rate-limit keying needs a trusted-proxy setup in production (tracked for M10)._
 
-### M2 — Persona core, manual profile & editor (§7, §8, §9, §22)
-- [ ] All persona tables and migrations, visibility and evidence state enums, soft delete
-- [ ] Persona service: CRUD for identity, experience, education, skills, projects, achievements, publications, preferences, knowledge areas
-- [ ] Manual entries create `user_confirmed` evidence, so manual data is evidence-backed
-- [ ] Persona versioning: snapshot on every material change, list versions, restore
-- [ ] APIs: `GET/PATCH /persona`, `GET/POST/PATCH/DELETE /skills|/projects|/experience|/education|/achievements|/preferences`, `POST /facts/{id}/confirm`, `GET /facts/{id}/evidence`
-- [ ] Frontend Persona Editor: tabbed sections; edit, delete and confirm inferred facts; add missing info; evidence drawer per fact; visibility toggle
-- **Done when:** a user can build a complete persona by hand, see evidence on every fact, and restore an earlier version.
+### M2 — Persona core, manual profile & editor (§7, §8, §9, §22) ✅
+- [x] All persona tables and migrations, visibility/evidence-state/employment-type enums (VARCHAR+CHECK), soft delete, persona-owned mixin
+- [x] Persona service: generic CRUD for identity, experience, education, skills, projects, achievements, publications, certifications, preferences, knowledge areas; confidence (1−Π(1−w)) and weighted completeness
+- [x] Manual entries create `user_confirmed` evidence; skill canonicalization (alias map) for later merge
+- [x] Persona versioning: snapshot on material change, list versions, restore (re-snapshots first, so restore is reversible)
+- [x] APIs: `GET/PATCH /persona`, `GET /persona/full`, generic `GET/POST/PATCH/DELETE /persona/{resource}`, `POST .../confirm`, `GET .../evidence`, `GET/POST /persona/meta/versions[...]/restore`
+- [x] Frontend Persona Editor: completeness bar, identity card, tabbed fact sections with add/edit/delete/confirm, evidence popover per fact, version-history popover with restore
+- **Done when:** a user can build a complete persona by hand, see evidence on every fact, and restore an earlier version. ✅ 25 backend tests pass; live run verified canonicalization, auto-evidence, versioning, and completeness through real HTTP.
+- _Note: visibility toggle in the editor UI is deferred to M8 (privacy), where it's the focus; the field and API already support it._
 
 ### M3 — AI provider layer & resume ingestion (§10, §12, §13, §39, §40)
 - [ ] `LLMProvider` (Anthropic/OpenAI/Gemini/Fake) with structured-output helper (Pydantic schema → JSON, with repair and retry), streaming, and token/latency logging to `ai_calls`

@@ -10,6 +10,9 @@ import importlib
 
 _MODEL_MODULES: list[str] = [
     "app.models.user",
+    "app.models.persona",
+    "app.models.facts",
+    "app.models.evidence",
 ]
 
 

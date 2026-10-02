@@ -18,11 +18,24 @@ os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("LLM_PROVIDER", "fake")
 os.environ.setdefault("EMBEDDING_PROVIDER", "fake")
 
-# Tables truncated between tests (child-first to respect FKs).
+# Tables truncated between tests. CASCADE handles FK order.
 _TABLES = [
     "one_time_tokens",
     "refresh_tokens",
     "oauth_accounts",
+    "evidence",
+    "persona_versions",
+    "skills",
+    "experiences",
+    "projects",
+    "education",
+    "achievements",
+    "publications",
+    "certifications",
+    "preferences",
+    "knowledge_areas",
+    "writing_styles",
+    "personas",
     "users",
 ]
 
@@ -48,3 +61,15 @@ async def client() -> AsyncGenerator[AsyncClient, None]:
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url="http://test") as ac:
             yield ac
+
+
+@pytest.fixture
+async def auth_client(client: AsyncClient) -> AsyncClient:
+    """A client signed up and carrying a Bearer access token."""
+    resp = await client.post(
+        "/auth/signup",
+        json={"email": "persona@example.com", "password": "personapass1", "name": "Persona"},
+    )
+    token = resp.json()["access_token"]
+    client.headers["Authorization"] = f"Bearer {token}"
+    return client
