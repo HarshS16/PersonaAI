@@ -143,13 +143,14 @@ All persona-owned rows carry `persona_id`, `visibility` (`private|shared|public`
 - **Done when:** "What projects have I built involving RAG?" returns the right projects with citations, and the validator blocks a seeded unsupported claim in tests. ✅ 49 backend tests pass (validator + retrieval + chat SSE); verified live with **real Groq** — the question returned a grounded, cited answer ("…built a RAG pipeline… using LangChain and FAISS【1】").
 - _Note: an explicit LLM intent-detection step and fact-card embeddings were folded into the simpler structured+semantic hybrid, which already satisfies the retrieval goals; a dedicated Search page UI is deferred (search API is live and the chat covers it)._
 
-### M6 — Career suite (§24–28, §45, §55)
-- [ ] `POST /jd/analyze`: extract required/preferred skills, experience, education, responsibilities, technologies and domain into a structured JD
-- [ ] Matching: each requirement is classified **Strong / Partial / Not demonstrated** with an evidence explanation (career gap analysis, §27)
-- [ ] `POST /resume/generate` (§45 request/response): select relevant experience and projects → generate bullets in the user's style → ATS optimization (keyword coverage, standard headings, no tables) → claim validation → evidence map per bullet. Formats: one-page / two-page. Export to PDF (WeasyPrint or browser print) and DOCX
-- [ ] `POST /interview/start` with modes technical / HR / project / system design / behavioral; questions grounded in JD + projects + weak areas; answer submission with feedback; session history
-- [ ] Frontend Career section: JD analyzer (requirement table with evidence), gap view, resume builder (editable preview, click a bullet to see its evidence, regenerate a section), interview practice UI
-- **Done when:** the full SRD §68 end-to-end scenario works: upload resume → connect GitHub → confirm → analyze JD → generate validated resume → interview prep.
+### M6 — Career suite (§24–28, §45, §55) ✅
+- [x] `POST /jd/analyze`: extracts required/preferred skills, technologies, responsibilities, experience years, education and domain into a structured JD (LLM, fake-backed for tests)
+- [x] Matching: each requirement classified **Strong / Partial / Not demonstrated** with evidence quotes (career gap analysis, §27)
+- [x] `POST /resume/generate` (§45 shape): selects matched skills + relevant experience/projects (JD-tech ranked) → bullets from the persona → **claim validation** (drops unsupported, softens unbacked leadership) → ATS keyword coverage + markdown render + evidence per section
+- [x] `POST /interview/start` with modes technical / project / system design / behavioral / HR; questions grounded in skills, projects, and (with a JD) weak areas; generations persisted
+- [x] Frontend Career section: JD textarea driving three tabs — gap analysis (requirement table with status + evidence), resume builder (preview with per-bullet validation badges, ATS coverage, copy-markdown), interview practice (mode selector + questions)
+- **Done when:** the full SRD §68 end-to-end scenario works: upload resume → connect GitHub → confirm → analyze JD → generate validated resume → interview prep. ✅ 54 backend tests pass; verified live with **real Groq**: JD → techs extracted, gap (Python/FastAPI/PostgreSQL strong, Kubernetes/AWS not demonstrated), resume with 67% ATS coverage, grounded interview questions.
+- _Note: PDF/DOCX export (browser print / WeasyPrint), two-page format, and interview answer-feedback are deferred; markdown export + copy are live._
 
 ### M7 — Dashboard, onboarding & Persona Explorer (§20, §21, §51, §53)
 - [ ] Onboarding wizard ("Build your AI Persona") with source checklist and progress

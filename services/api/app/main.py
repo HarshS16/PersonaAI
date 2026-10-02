@@ -16,7 +16,17 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from app import __version__
-from app.api import auth, chat, documents, github, health, oauth, persona, sources
+from app.api import (
+    auth,
+    career,
+    chat,
+    documents,
+    github,
+    health,
+    oauth,
+    persona,
+    sources,
+)
 from app.core.config import settings
 from app.core.errors import register_exception_handlers
 from app.core.logging import configure_logging, get_logger
@@ -65,6 +75,7 @@ def create_app() -> FastAPI:
     app.include_router(sources.router)
     app.include_router(github.router)
     app.include_router(chat.router)
+    app.include_router(career.router)
 
     return app
 

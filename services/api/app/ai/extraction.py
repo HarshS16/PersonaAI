@@ -44,6 +44,19 @@ class ExtractedAchievement(BaseModel):
     quote: str
 
 
+class JDAnalysis(BaseModel):
+    """Structured requirements extracted from a job description (SRD §26)."""
+
+    title: str | None = None
+    required_skills: list[str] = Field(default_factory=list)
+    preferred_skills: list[str] = Field(default_factory=list)
+    technologies: list[str] = Field(default_factory=list)
+    responsibilities: list[str] = Field(default_factory=list)
+    experience_years: int | None = None
+    education: str | None = None
+    domain: str | None = None
+
+
 class ResumeExtraction(BaseModel):
     """Everything extractable from a resume-like document."""
 

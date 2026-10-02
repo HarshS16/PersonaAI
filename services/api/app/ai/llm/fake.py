@@ -92,6 +92,51 @@ def _extract_resume(text: str) -> dict[str, Any]:
     }
 
 
+def _analyze_jd(text: str) -> dict[str, Any]:
+    lines = _lines(text)
+    lower = text.lower()
+
+    techs = []
+    for kw in _SKILL_VOCAB:
+        if re.search(rf"(?<![\w.]){re.escape(kw)}(?![\w.])", lower):
+            techs.append(kw)
+
+    # Required vs preferred by surrounding keywords.
+    required, preferred = [], []
+    for kw in techs:
+        line = _line_with(text, kw).lower()
+        if any(w in line for w in ("prefer", "nice to have", "plus", "bonus")):
+            preferred.append(kw)
+        else:
+            required.append(kw)
+
+    title = None
+    for ln in lines[:4]:
+        if any(k in ln.lower() for k in _ROLE_KEYWORDS) and len(ln) < 80:
+            title = ln
+            break
+
+    responsibilities = [
+        ln.lstrip("-*• ").strip()
+        for ln in lines
+        if len(ln.split()) >= 5 and not any(k in ln.lower() for k in _EDU_KEYWORDS)
+    ][:10]
+
+    yrs = re.search(r"(\d+)\+?\s*years?", lower)
+    education = next((ln for ln in lines if any(k in ln.lower() for k in _EDU_KEYWORDS)), None)
+
+    return {
+        "title": title,
+        "required_skills": required,
+        "preferred_skills": preferred,
+        "technologies": techs,
+        "responsibilities": responsibilities,
+        "experience_years": int(yrs.group(1)) if yrs else None,
+        "education": education,
+        "domain": None,
+    }
+
+
 class FakeLLMProvider(LLMProvider):
     name = "fake"
 
@@ -109,6 +154,8 @@ class FakeLLMProvider(LLMProvider):
 
         if purpose.startswith("extract"):
             payload = json.dumps(_extract_resume(user_text))
+        elif purpose.startswith("analyze_jd"):
+            payload = json.dumps(_analyze_jd(user_text))
         elif json_mode:
             payload = "{}"
         else:

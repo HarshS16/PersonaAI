@@ -25,6 +25,7 @@ _TABLES = [
     "oauth_accounts",
     "chat_messages",
     "chat_sessions",
+    "generations",
     "ai_calls",
     "chunks",
     "documents",
