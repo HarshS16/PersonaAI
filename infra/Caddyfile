@@ -1,0 +1,12 @@
+# Caddy reverse proxy with automatic HTTPS.
+# Set DOMAIN to your hostname; Caddy provisions TLS via Let's Encrypt
+# automatically. For local prod testing, DOMAIN=localhost serves over HTTP.
+#
+# The Next.js container serves the app and itself proxies /api/backend/* to the
+# API (see next.config.ts + API_PROXY_TARGET), so Caddy routes everything to it.
+
+{$DOMAIN:localhost} {
+	reverse_proxy web:3000
+	encode gzip
+	header -Server
+}

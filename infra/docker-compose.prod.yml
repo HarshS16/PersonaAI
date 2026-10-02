@@ -1,0 +1,123 @@
+# Production stack for PersonaAI.
+#
+#   cp .env.example .env     # fill in real secrets + DOMAIN
+#   docker compose -f infra/docker-compose.prod.yml --env-file .env up -d --build
+#
+# Runs Postgres, Redis, the API, the Celery worker + beat, the Next.js web app,
+# and Caddy (automatic HTTPS). Only Caddy is published to the host.
+name: personaai-prod
+
+x-api-env: &api-env
+  ENVIRONMENT: production
+  DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-persona}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:-persona}
+  REDIS_URL: redis://redis:6379/0
+  CELERY_BROKER_URL: redis://redis:6379/1
+  CELERY_RESULT_BACKEND: redis://redis:6379/2
+  JWT_SECRET: ${JWT_SECRET:?}
+  ENCRYPTION_KEY: ${ENCRYPTION_KEY:?}
+  CORS_ORIGINS: ${CORS_ORIGINS:-https://localhost}
+  LLM_PROVIDER: ${LLM_PROVIDER:-groq}
+  GROQ_API_KEY: ${GROQ_API_KEY:-}
+  GROQ_BASE_URL: ${GROQ_BASE_URL:-https://api.groq.com/openai/v1}
+  LLM_MODEL_FAST: ${LLM_MODEL_FAST:-openai/gpt-oss-20b}
+  LLM_MODEL_STRONG: ${LLM_MODEL_STRONG:-openai/gpt-oss-120b}
+  EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-fastembed}
+  EMBEDDING_MODEL: ${EMBEDDING_MODEL:-BAAI/bge-small-en-v1.5}
+  EMBEDDING_DIM: ${EMBEDDING_DIM:-384}
+  GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+  GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+  GITHUB_REDIRECT_URI: ${GITHUB_REDIRECT_URI:-}
+  STORAGE_LOCAL_DIR: /data/uploads
+  SENTRY_DSN: ${SENTRY_DSN:-}
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-persona}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      POSTGRES_DB: ${POSTGRES_DB:-persona}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-persona}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    restart: unless-stopped
+
+  migrate:
+    build: { context: ../services/api }
+    command: ["alembic", "upgrade", "head"]
+    environment: *api-env
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+  api:
+    build: { context: ../services/api }
+    environment: *api-env
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      postgres: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    restart: unless-stopped
+
+  worker:
+    build: { context: ../services/api }
+    command: ["celery", "-A", "app.workers.celery_app", "worker", "-l", "info"]
+    environment: *api-env
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      redis: { condition: service_started }
+      migrate: { condition: service_completed_successfully }
+    restart: unless-stopped
+
+  beat:
+    build: { context: ../services/api }
+    command: ["celery", "-A", "app.workers.celery_app", "beat", "-l", "info"]
+    environment: *api-env
+    depends_on:
+      redis: { condition: service_started }
+    restart: unless-stopped
+
+  web:
+    build: { context: ../apps/web }
+    environment:
+      API_PROXY_TARGET: http://api:8000
+      NODE_ENV: production
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:
+  uploads:
+  caddydata:
+  caddyconfig:

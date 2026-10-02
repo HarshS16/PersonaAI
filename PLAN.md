@@ -166,12 +166,20 @@ All persona-owned rows carry `persona_id`, `visibility` (`private|shared|public`
 - [x] Settings UI: a per-fact visibility selector in the editor, plus an "Your data" export card and a password-confirmed "Delete account" card
 - **Done when:** export round-trips and account deletion leaves no user rows, files or embeddings (verified by test). ✅ 64 backend tests pass; verified live — visibility toggle flips public exposure, JSON+ZIP export, and account deletion returns 404 on the persona afterward (full cascade).
 
-### M9 — AI evaluation framework (§62, §63)
-- [ ] Synthetic personas (e.g. Persona A: 20 projects, 10 skills, 5 jobs, 3 papers, 50 documents) generated as fixtures
-- [ ] Question sets with expected answers covering facts, lists, negatives ("Does the person have AWS experience?" → no) and adversarial prompts that invite hallucination
-- [ ] Metrics: factuality, groundedness (claims with evidence), retrieval recall@k / MRR, resume–JD relevance, hallucination rate, consistency across repeated runs
-- [ ] `uv run eval` CLI producing a report; thresholds checked in tests (run against the Fake provider in CI, real provider on demand)
-- **Done when:** the eval report runs end to end and hallucination rate on the adversarial set is measured and below an agreed threshold.
+### M9 — AI evaluation framework (§62, §63) ✅
+- [x] Synthetic persona fixture (10 skills, 5 roles, 5 projects, 3 publications, embedded documents) plus a set of absent skills for negatives
+- [x] Question sets covering fact lookup, lists, negatives ("Do I have AWS experience?") and adversarial fabricated claims
+- [x] Metrics: retrieval recall@k / MRR, negative accuracy, groundedness (validated resume bullets), hallucination rate (fabricated claims allowed), supported-claim pass rate
+- [x] `python -m eval` CLI printing a report and enforcing thresholds; the same thresholds asserted in the test suite (fake provider in CI, Groq on demand)
+- **Done when:** the eval report runs end to end and hallucination rate on the adversarial set is measured and below an agreed threshold. ✅ 5 eval tests pass; live with **real Groq** all thresholds pass — recall 1.0, negative accuracy 1.0, groundedness 1.0, **hallucination rate 0.0**.
+
+### M10 — Hardening, observability & deployment (§36, §59–61) ✅
+- [x] Prometheus metrics at `/metrics` (request count + latency by route), structured JSON logs, `ai_calls` token/latency table; Sentry (env-gated) and OpenTelemetry tracing for FastAPI/SQLAlchemy/httpx (env-gated, `observability` extra)
+- [x] Security pass: secure headers middleware (nosniff, frame-deny, referrer policy, HSTS in prod), rate limiting, request/size validation, argon2 + rotating refresh tokens + Fernet-encrypted provider tokens, strict per-persona scoping
+- [x] Performance: pgvector HNSW + GIN indexes, FK indexes, async throughout; ingestion off the request path
+- [x] Production Docker stack: API/worker image + web image, `infra/docker-compose.prod.yml` (postgres, redis, migrate, api, worker, beat, web, Caddy TLS), one-shot migration service
+- [x] Docs: `docs/architecture.md`, `docs/deployment.md`, README updated
+- **Done when:** a fresh clone can be run with one command, all test suites are green, and the security checklist is complete. ✅ Backend tests + ruff + mypy + eslint + web build all green; `/metrics` and security headers verified by tests; one-command prod compose with Caddy TLS and an automated migrate step.
 
 ### M10 — Hardening, observability & deployment (§36, §59–61)
 - [ ] OpenTelemetry tracing (FastAPI, SQLAlchemy, Celery, httpx), Prometheus metrics, Sentry hook, AI token/latency dashboard data

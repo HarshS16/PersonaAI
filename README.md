@@ -74,6 +74,33 @@ pnpm test    # backend pytest + frontend type-check
 pnpm lint    # ruff + mypy + eslint
 ```
 
+## AI evaluation
+
+```bash
+cd services/api
+.venv/Scripts/python -m eval          # synthetic persona; retrieval/groundedness/hallucination report
+```
+
+Runs against the fake provider by default (no keys needed); set `LLM_PROVIDER=groq`
+to evaluate with the real model. Thresholds are enforced in the test suite.
+
+## Production deployment
+
+The full stack (Postgres, Redis, API, worker, beat, web, Caddy/TLS) ships as
+Docker:
+
+```bash
+docker compose -f infra/docker-compose.prod.yml --env-file .env up -d --build
+```
+
+See [docs/deployment.md](docs/deployment.md) for configuration and operations,
+and [docs/architecture.md](docs/architecture.md) for how the system fits together.
+
 ## Status
 
-M0 (foundations) complete. See [PLAN.md](PLAN.md) for what's next.
+MVP complete (M0–M8) plus the AI evaluation framework (M9) and hardening +
+deployment (M10): authentication, resume/GitHub/manual sources, an
+evidence-backed persona, persona-aware RAG chat, the career suite (JD analysis,
+validated resume generation, interview prep), dashboard/onboarding/explorer,
+privacy & data ownership, observability, and a production Docker stack. See
+[PLAN.md](PLAN.md) for the full milestone breakdown.

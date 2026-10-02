@@ -34,6 +34,12 @@ from app.core.config import settings
 from app.core.errors import register_exception_handlers
 from app.core.logging import configure_logging, get_logger
 from app.core.middleware import RequestContextMiddleware
+from app.core.observability import (
+    MetricsAndSecurityMiddleware,
+    metrics_endpoint,
+    setup_otel,
+    setup_sentry,
+)
 from app.core.ratelimit import limiter
 
 log = get_logger("main")
@@ -48,6 +54,8 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
 
 def create_app() -> FastAPI:
+    setup_sentry()
+
     app = FastAPI(
         title="PersonaAI API",
         version=__version__,
@@ -58,6 +66,7 @@ def create_app() -> FastAPI:
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
     app.add_middleware(SlowAPIMiddleware)
+    app.add_middleware(MetricsAndSecurityMiddleware)
     app.add_middleware(RequestContextMiddleware)
     app.add_middleware(
         CORSMiddleware,
@@ -68,6 +77,8 @@ def create_app() -> FastAPI:
     )
 
     register_exception_handlers(app)
+
+    app.add_route("/metrics", lambda _request: metrics_endpoint(), methods=["GET"])
 
     # Routers. More are mounted as milestones land.
     app.include_router(health.router)
@@ -84,6 +95,7 @@ def create_app() -> FastAPI:
     app.include_router(account.router)
     app.include_router(public.router)
 
+    setup_otel(app)
     return app
 
 
