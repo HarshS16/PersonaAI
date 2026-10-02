@@ -19,16 +19,22 @@ from app import __version__
 from app.api import (
     account,
     auth,
+    blog,
     career,
     chat,
+    content,
     dashboard,
     documents,
     github,
     health,
+    linkedin,
     oauth,
     persona,
+    portfolio,
+    preferences,
     public,
     sources,
+    x_archive,
 )
 from app.core.config import settings
 from app.core.errors import register_exception_handlers
@@ -90,8 +96,14 @@ def create_app() -> FastAPI:
     app.include_router(documents.router)
     app.include_router(sources.router)
     app.include_router(github.router)
+    app.include_router(blog.router)
+    app.include_router(linkedin.router)
+    app.include_router(x_archive.router)
+    app.include_router(preferences.router)
     app.include_router(chat.router)
     app.include_router(career.router)
+    app.include_router(content.router)
+    app.include_router(portfolio.router)
     app.include_router(account.router)
     app.include_router(public.router)
 

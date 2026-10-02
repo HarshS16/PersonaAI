@@ -63,23 +63,39 @@ export const githubApi = {
     api<Job>(`/sources/github/${sourceId}/sync`, { method: "POST" }),
 };
 
-export const sourcesApi = {
-  upload: async (file: File): Promise<UploadResponse> => {
-    // Multipart: let the browser set the Content-Type/boundary.
-    const form = new FormData();
-    form.append("file", file);
-    const res = await fetch("/api/backend/documents/upload", {
+async function _uploadFile(
+  endpoint: string,
+  file: File,
+): Promise<UploadResponse> {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch(`/api/backend${endpoint}`, {
+    method: "POST",
+    credentials: "include",
+    body: form,
+  });
+  const body = await res.json().catch(() => null);
+  if (!res.ok) {
+    const err = body?.error ?? {};
+    throw new Error(err.message ?? "Upload failed");
+  }
+  return body as UploadResponse;
+}
+
+export const blogApi = {
+  connect: (provider: string, handle: string) =>
+    api<{ source: Source; job: Job }>("/sources/blog/connect", {
       method: "POST",
-      credentials: "include",
-      body: form,
-    });
-    const body = await res.json().catch(() => null);
-    if (!res.ok) {
-      const err = body?.error ?? {};
-      throw new Error(err.message ?? "Upload failed");
-    }
-    return body as UploadResponse;
-  },
+      body: JSON.stringify({ provider, handle }),
+    }),
+  sync: (sourceId: string) =>
+    api<Job>(`/sources/blog/${sourceId}/sync`, { method: "POST" }),
+};
+
+export const sourcesApi = {
+  upload: (file: File) => _uploadFile("/documents/upload", file),
+  uploadLinkedIn: (file: File) => _uploadFile("/sources/linkedin/upload", file),
+  uploadX: (file: File) => _uploadFile("/sources/x/upload", file),
 
   list: () => api<Source[]>("/sources"),
   disconnect: (id: string) => api<void>(`/sources/${id}`, { method: "DELETE" }),

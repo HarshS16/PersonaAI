@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { UploadCard } from "@/components/sources/upload-card";
 import { GitHubCard } from "@/components/sources/github-card";
+import { BlogCard } from "@/components/sources/blog-card";
+import { LinkedInCard } from "@/components/sources/linkedin-card";
+import { XArchiveCard } from "@/components/sources/x-archive-card";
 import { SourceList } from "@/components/sources/source-list";
 import { ConflictsCard } from "@/components/sources/conflicts-card";
 
@@ -19,6 +22,9 @@ export default function SourcesPage() {
       <ConflictsCard />
       <UploadCard />
       <GitHubCard />
+      <LinkedInCard />
+      <BlogCard />
+      <XArchiveCard />
       <SourceList />
 
       <p className="text-center text-sm text-muted-foreground">

@@ -68,6 +68,10 @@ target-version = "py312"
 select = ["E", "F", "I", "UP", "B", "ASYNC", "C4", "SIM"]
 ignore = ["B008"]  # FastAPI Depends() in defaults is idiomatic
 
+[tool.ruff.lint.per-file-ignores]
+# Contains an embedded HTML/CSS template with intentionally long style lines.
+"app/domain/portfolio.py" = ["E501"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true

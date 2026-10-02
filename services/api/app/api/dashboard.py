@@ -32,3 +32,19 @@ async def persona_graph(
 ) -> dict[str, Any]:
     persona = await get_or_create_persona(session, user.id)
     return await build_graph(session, persona)
+
+
+@router.get("/persona/writing-style")
+async def persona_writing_style(
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> dict[str, Any]:
+    from sqlalchemy import select
+
+    from app.models.persona import WritingStyle
+
+    persona = await get_or_create_persona(session, user.id)
+    row = (
+        await session.execute(select(WritingStyle).where(WritingStyle.persona_id == persona.id))
+    ).scalar_one_or_none()
+    return dict(row.metrics) if row and row.metrics else {}

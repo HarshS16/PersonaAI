@@ -191,12 +191,16 @@ All persona-owned rows carry `persona_id`, `visibility` (`private|shared|public`
 
 ---
 
-### Phase 2 (after MVP is solid) (§56)
-- [ ] Cover letters and job-application answers (reuse JD analysis + validator)
-- [ ] Portfolio generator: About/Experience/Projects/Skills/Research/Achievements/Contact, rendered as a themable static site with export (§30)
-- [ ] Content generator: LinkedIn/X posts, blog posts, project announcements, articles, all grounded and style-adapted (§29); writing-style analysis layer (§8.6)
-- [ ] Connectors: Medium and Hashnode (RSS / public GraphQL), personal website/portfolio URL ingestion (respecting robots.txt), LinkedIn **via the user's official data-export ZIP or profile PDF** (LinkedIn has no general-purpose public API), X **via the user's archive import**
-- [ ] Inferred preferences with a user-confirmation flow (§8.7)
+### Phase 2 (after MVP is solid) (§56) ✅
+- [x] Content generator: LinkedIn/X posts, blog posts, project announcements, articles — grounded in the persona, with the validator surfacing unsupported claims as warnings (§29)
+- [x] Cover letters and job-application answers (reuse JD analysis + retrieval + validator)
+- [x] Portfolio generator: About/Skills/Experience/Projects/Research/Achievements/Contact, rendered as a self-contained, themeable HTML page with download; respects per-fact visibility (§30)
+- [x] Career gap analysis (delivered in M6)
+- [x] Connectors: Blog/RSS (Medium/Hashnode/Dev.to/generic RSS via feedparser), LinkedIn **data-export ZIP** (Profile/Skills/Positions/Education CSVs → merge), X/Twitter **archive import** (ZIP or tweets.js → embed + writing-style)
+- [x] Writing-style analysis layer (§8.6): deterministic metrics (sentence length, formality, vocabulary richness) from blog/tweet text, wired into content generation prompts as a style hint
+- [x] Inferred preferences with a user-confirmation flow (§8.7): deterministic inference from skills + experience (seniority, preferred technologies, work mode, specialization) → inferred_pending → confirm/dismiss
+- [x] Frontend: Blog connector card (platform + handle), LinkedIn upload card, X archive upload card on the Sources page
+- **Done when:** all connectors ingest data, writing style adapts generated content, and preferences auto-detect + confirm/dismiss. ✅ 95 backend tests pass; frontend tsc clean.
 
 ### Phase 3 (§57)
 - [ ] Public persona and "Ask <Name> AI" public page (public-visibility facts only, separate rate-limited endpoint, custom slug)

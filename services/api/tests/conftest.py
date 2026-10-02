@@ -18,6 +18,32 @@ os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("LLM_PROVIDER", "fake")
 os.environ.setdefault("EMBEDDING_PROVIDER", "fake")
 
+# Tests run against a DEDICATED database so they never truncate the dev data.
+# Override with TEST_DATABASE_URL if needed. This must be set before app imports.
+_TEST_DB = "persona_test"
+os.environ["DATABASE_URL"] = os.environ.get(
+    "TEST_DATABASE_URL",
+    f"postgresql+asyncpg://persona:persona@localhost:5432/{_TEST_DB}",
+)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _prepare_test_database() -> None:
+    """Create and migrate the dedicated test database once per session."""
+    import psycopg
+    from alembic import command
+    from alembic.config import Config
+
+    admin_url = "postgresql://persona:persona@localhost:5432/postgres"
+    with psycopg.connect(admin_url, autocommit=True) as conn:
+        exists = conn.execute(
+            "SELECT 1 FROM pg_database WHERE datname = %s", (_TEST_DB,)
+        ).fetchone()
+        if not exists:
+            conn.execute(f'CREATE DATABASE "{_TEST_DB}"')
+
+    command.upgrade(Config("alembic.ini"), "head")
+
 # Tables truncated between tests. CASCADE handles FK order.
 _TABLES = [
     "one_time_tokens",
