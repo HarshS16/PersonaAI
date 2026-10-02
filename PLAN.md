@@ -111,17 +111,17 @@ All persona-owned rows carry `persona_id`, `visibility` (`private|shared|public`
 - **Done when:** a user can build a complete persona by hand, see evidence on every fact, and restore an earlier version. ✅ 25 backend tests pass; live run verified canonicalization, auto-evidence, versioning, and completeness through real HTTP.
 - _Note: visibility toggle in the editor UI is deferred to M8 (privacy), where it's the focus; the field and API already support it._
 
-### M3 — AI provider layer & resume ingestion (§10, §12, §13, §39, §40)
-- [ ] `LLMProvider` (Anthropic/OpenAI/Gemini/Fake) with structured-output helper (Pydantic schema → JSON, with repair and retry), streaming, and token/latency logging to `ai_calls`
-- [ ] `EmbeddingProvider` (Voyage/OpenAI/Gemini/fastembed/Fake)
-- [ ] `POST /documents/upload` for PDF (pdfplumber/pypdf), DOCX (python-docx) and TXT, with size/type validation and content-hash dedupe
-- [ ] Pipeline as Celery chain: detect type → extract text → normalize → section-aware chunking → entity extraction → relation extraction → fact validation → persona update → embedding. Job progress via `GET /jobs/{id}`
-- [ ] Extraction prompts and schemas for resume sections; every extracted fact must cite a chunk and a quote span, or it is dropped
-- [ ] **Persona merge engine (§46):** canonicalize (skill alias dictionary, e.g. "ReactJS" → React, company/title normalization), match existing facts (exact + fuzzy + embedding similarity), update or create, attach evidence, recompute confidence
-- [ ] **Conflict detection (§47):** contradictory single-valued fields (title, dates, role) → `conflicts` row, never silently overwritten
-- [ ] Failed jobs retry with backoff; the persona update runs in one transaction, so a failure cannot corrupt the persona (§60)
-- [ ] Frontend: onboarding resume upload with live progress, review screen ("We found 23 skills, 4 roles…" with ✓/✗ per fact), conflict resolution UI
-- **Done when:** uploading a sample resume produces a reviewable persona with evidence quotes. A second, conflicting resume raises conflicts instead of overwriting.
+### M3 — AI provider layer & resume ingestion (§10, §12, §13, §39, §40) ✅
+- [x] `LLMProvider` (OpenAI-compatible adapter for Groq/OpenAI + deterministic Fake) with a structured-output helper (Pydantic schema → JSON, repair + retry), streaming, and token/latency logging to `ai_calls`
+- [x] `EmbeddingProvider` (local fastembed + deterministic Fake); provider factories
+- [x] `POST /documents/upload` for PDF (pdfplumber/pypdf), DOCX (python-docx) and TXT, with size/type validation, storage, and content-hash dedupe
+- [x] Pipeline (callable + Celery task): chunk (section-aware) → embed (HNSW index) → snapshot → extract facts → merge → finalize. Job progress via `GET /jobs/{id}`
+- [x] Extraction prompt + schemas; every extracted fact cites a verbatim quote, mapped to its chunk as evidence
+- [x] **Persona merge engine (§46):** canonicalize (skill aliases), match existing facts (exact + fuzzy via SequenceMatcher), update or create, attach evidence, recompute confidence
+- [x] **Conflict detection (§47):** contradictory identity fields (title/name/location) → `conflicts` row, never silently overwritten; resolution endpoint
+- [x] Failed jobs retry with backoff; persona-mutating work runs in one transaction (committed only on success), so a failure cannot corrupt the persona (§60)
+- [x] Frontend: Sources page with resume upload, live job-progress bar, merge summary ("N skills added…"), source list with disconnect, and conflict-resolution UI
+- **Done when:** uploading a sample resume produces a reviewable persona with evidence quotes. A second, conflicting resume raises conflicts instead of overwriting. ✅ 33 backend tests pass; verified live through the full stack (upload → Celery worker → **real Groq** extraction → fastembed embeddings → persona) across multiple sequential jobs, with `ai_calls` token logging confirmed.
 
 ### M4 — GitHub connector (§10, §54)
 - [ ] `Connector` base interface (`connect`, `sync`, `disconnect`, `stats`) shared by all future sources

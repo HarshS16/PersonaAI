@@ -28,3 +28,9 @@ celery_app.conf.update(
     result_expires=3600,
     broker_connection_retry_on_startup=True,
 )
+
+# Register every model so SQLAlchemy can configure mappers with cross-table
+# foreign keys in the worker process (the API gets this via its routers).
+from app.models import import_all_models  # noqa: E402
+
+import_all_models()

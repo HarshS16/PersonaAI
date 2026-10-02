@@ -13,6 +13,7 @@ _MODEL_MODULES: list[str] = [
     "app.models.persona",
     "app.models.facts",
     "app.models.evidence",
+    "app.models.ingestion",
 ]
 
 

@@ -1,0 +1,76 @@
+import { api } from "@/lib/api";
+
+export type Source = {
+  id: string;
+  type: string;
+  provider: string | null;
+  title: string | null;
+  url: string | null;
+  status: string;
+  last_synced: string | null;
+  stats: Record<string, unknown>;
+  error: string | null;
+  created_at: string;
+};
+
+export type Job = {
+  id: string;
+  source_id: string | null;
+  type: string;
+  status: "queued" | "running" | "succeeded" | "failed";
+  progress: number;
+  step: string | null;
+  error: string | null;
+  result: {
+    created?: Record<string, number>;
+    updated?: Record<string, number>;
+    evidence_added?: number;
+    conflicts?: number;
+  };
+  created_at: string;
+  updated_at: string;
+};
+
+export type UploadResponse = {
+  source: Source;
+  job: Job;
+  duplicate: boolean;
+};
+
+export type Conflict = {
+  id: string;
+  field: string;
+  candidates: { value: string; source: string }[];
+  status: string;
+  resolution: Record<string, unknown>;
+  created_at: string;
+};
+
+export const sourcesApi = {
+  upload: async (file: File): Promise<UploadResponse> => {
+    // Multipart: let the browser set the Content-Type/boundary.
+    const form = new FormData();
+    form.append("file", file);
+    const res = await fetch("/api/backend/documents/upload", {
+      method: "POST",
+      credentials: "include",
+      body: form,
+    });
+    const body = await res.json().catch(() => null);
+    if (!res.ok) {
+      const err = body?.error ?? {};
+      throw new Error(err.message ?? "Upload failed");
+    }
+    return body as UploadResponse;
+  },
+
+  list: () => api<Source[]>("/sources"),
+  disconnect: (id: string) => api<void>(`/sources/${id}`, { method: "DELETE" }),
+  getJob: (id: string) => api<Job>(`/jobs/${id}`),
+  listConflicts: () => api<Conflict[]>("/conflicts"),
+  resolveConflict: (id: string, chosen_value: string) =>
+    api<Conflict>(`/conflicts/${id}/resolve`, {
+      method: "POST",
+      body: JSON.stringify({ chosen_value }),
+    }),
+};
