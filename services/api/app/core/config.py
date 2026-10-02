@@ -38,12 +38,17 @@ class Settings(BaseSettings):
     refresh_token_ttl_days: int = 30
 
     # AI
+    # llm_provider: fake | groq | openai | anthropic | gemini
+    # (groq/openai share the OpenAI-compatible adapter via a base URL)
     llm_provider: str = "fake"
-    llm_model_fast: str = "claude-haiku-4-5-20251001"
-    llm_model_strong: str = "claude-opus-4-8"
+    llm_model_fast: str = "openai/gpt-oss-20b"
+    llm_model_strong: str = "openai/gpt-oss-120b"
     anthropic_api_key: str = ""
     openai_api_key: str = ""
+    openai_base_url: str = ""
     google_api_key: str = ""
+    groq_api_key: str = ""
+    groq_base_url: str = "https://api.groq.com/openai/v1"
 
     embedding_provider: str = "fastembed"
     embedding_model: str = "BAAI/bge-small-en-v1.5"
