@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { UploadCard } from "@/components/sources/upload-card";
+import { GitHubCard } from "@/components/sources/github-card";
 import { SourceList } from "@/components/sources/source-list";
 import { ConflictsCard } from "@/components/sources/conflicts-card";
 
@@ -17,6 +18,7 @@ export default function SourcesPage() {
 
       <ConflictsCard />
       <UploadCard />
+      <GitHubCard />
       <SourceList />
 
       <p className="text-center text-sm text-muted-foreground">
@@ -24,7 +26,7 @@ export default function SourcesPage() {
         <Link href="/persona" className="text-primary hover:underline">
           Persona
         </Link>{" "}
-        page. GitHub connection arrives next.
+        page.
       </p>
     </div>
   );

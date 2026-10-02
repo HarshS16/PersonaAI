@@ -123,14 +123,15 @@ All persona-owned rows carry `persona_id`, `visibility` (`private|shared|public`
 - [x] Frontend: Sources page with resume upload, live job-progress bar, merge summary ("N skills added…"), source list with disconnect, and conflict-resolution UI
 - **Done when:** uploading a sample resume produces a reviewable persona with evidence quotes. A second, conflicting resume raises conflicts instead of overwriting. ✅ 33 backend tests pass; verified live through the full stack (upload → Celery worker → **real Groq** extraction → fastembed embeddings → persona) across multiple sequential jobs, with `ai_calls` token logging confirmed.
 
-### M4 — GitHub connector (§10, §54)
-- [ ] `Connector` base interface (`connect`, `sync`, `disconnect`, `stats`) shared by all future sources
-- [ ] `POST /sources/github/connect` (OAuth with `read:user`, `repo` optional for private repos, chosen by the user), tokens encrypted server-side
-- [ ] Sync: repos (owned, forked, contributed), languages, topics, READMEs, commit counts and recent commit messages by the user, contribution stats, stars. Respects rate limits, conditional requests (ETag), incremental sync
-- [ ] Map to persona: repo → project (README-summarized description, technologies from languages + manifests such as package.json, pyproject and requirements), language/tech → skills with GitHub evidence, OSS contributions → experience (type `oss`)
-- [ ] Source management API and UI: status, last synced, repo count, Sync, Disconnect (disconnect removes the token and optionally the derived data)
-- [ ] Scheduled periodic re-sync (Celery beat), opt-in
-- **Done when:** connecting GitHub discovers repositories, projects and technologies; they merge with resume facts and raise evidence counts. Sync and disconnect both work from the Sources page.
+### M4 — GitHub connector (§10, §54) ✅
+- [x] `Connector` client interface with normalized `GitHubData`/`RepoData`, a real httpx client and a deterministic fake, selected by a factory
+- [x] `POST /sources/github/connect` — uses the stored GitHub OAuth token when present (encrypted server-side), or a public username as a fallback; status + re-sync endpoints
+- [x] Sync: repos (ranked non-fork → stars), languages, topics, stars, READMEs (capped at 20 detailed fetches). Public API fallback when unauthenticated
+- [x] Map to persona: repo → project (languages as technologies, repo URL), language → skill with GitHub-weighted evidence; READMEs stored as embedded chunks for semantic search
+- [x] Source management API and UI: GitHub card (connect/sync/progress/summary), status, source list with disconnect (removes the source's evidence)
+- [x] Merge reuses the conflict-aware engine with a GitHub evidence weight, so repo skills merge with resume skills and raise evidence counts
+- **Done when:** connecting GitHub discovers repositories, projects and technologies; they merge with resume facts and raise evidence counts. Sync and disconnect both work from the Sources page. ✅ 39 backend tests pass; verified live against the **real GitHub API** (octocat → 5 projects, 5 skills, 11 evidence items) through the worker.
+- _Note: commit-message mining, package-manifest parsing, ETag/incremental sync, and scheduled re-sync (Celery beat) are deferred as enhancements; the connector and manual re-sync work now._
 
 ### M5 — Semantic memory, Ask My Persona & personal search (§15–18, §23, §31, §44, §49)
 - [ ] Embed all chunks plus a fact card for each structured fact; HNSW index; tsvector keyword index

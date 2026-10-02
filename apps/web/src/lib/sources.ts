@@ -46,6 +46,23 @@ export type Conflict = {
   created_at: string;
 };
 
+export type GitHubStatus = {
+  oauth_connected: boolean;
+  username: string | null;
+  source_id: string | null;
+};
+
+export const githubApi = {
+  status: () => api<GitHubStatus>("/sources/github/status"),
+  connect: (username?: string) =>
+    api<{ source: Source; job: Job }>("/sources/github/connect", {
+      method: "POST",
+      body: JSON.stringify({ username: username || null }),
+    }),
+  sync: (sourceId: string) =>
+    api<Job>(`/sources/github/${sourceId}/sync`, { method: "POST" }),
+};
+
 export const sourcesApi = {
   upload: async (file: File): Promise<UploadResponse> => {
     // Multipart: let the browser set the Content-Type/boundary.

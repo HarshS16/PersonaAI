@@ -92,6 +92,8 @@ async def merge_extraction(
     *,
     source_id: uuid.UUID,
     chunks: list[tuple[uuid.UUID, str]],
+    source_label: str = "resume",
+    evidence_weight: float = _RESUME_W,
 ) -> MergeSummary:
     summary = MergeSummary()
 
@@ -105,9 +107,9 @@ async def merge_extraction(
             source_id=source_id,
             chunk_id=_find_chunk(quote, chunks),
             content=quote,
-            locator={"source": "resume", "section": section},
+            locator={"source": source_label, "section": section},
             state=EvidenceState.verified,
-            confidence=_RESUME_W,
+            confidence=evidence_weight,
         )
         session.add(ev)
         summary.evidence_added += 1
@@ -136,7 +138,7 @@ async def merge_extraction(
         if match is None:
             match = Skill(
                 persona_id=persona.id, name=sk.name, canonical_name=canon,
-                category=sk.category, state=EvidenceState.verified, confidence=_RESUME_W,
+                category=sk.category, state=EvidenceState.verified, confidence=evidence_weight,
             )
             session.add(match)
             await session.flush()
@@ -159,8 +161,12 @@ async def merge_extraction(
         )
         if match is None:
             match = Experience(
-                persona_id=persona.id, role=ex.role, company=ex.company,
-                description=ex.description, state=EvidenceState.verified, confidence=_RESUME_W,
+                persona_id=persona.id,
+                role=ex.role,
+                company=ex.company,
+                description=ex.description,
+                state=EvidenceState.verified,
+                confidence=evidence_weight,
             )
             session.add(match)
             await session.flush()
@@ -179,8 +185,12 @@ async def merge_extraction(
         match = next((p for p in existing_proj if _similar(p.name, pr.name)), None)
         if match is None:
             match = Project(
-                persona_id=persona.id, name=pr.name, description=pr.description,
-                technologies=pr.technologies, state=EvidenceState.verified, confidence=_RESUME_W,
+                persona_id=persona.id,
+                name=pr.name,
+                description=pr.description,
+                technologies=pr.technologies,
+                state=EvidenceState.verified,
+                confidence=evidence_weight,
             )
             session.add(match)
             await session.flush()
@@ -202,7 +212,7 @@ async def merge_extraction(
                 persona_id=persona.id, institution=ed.institution, degree=ed.degree,
                 field_of_study=ed.field_of_study,
                 state=EvidenceState.verified,
-                confidence=_RESUME_W,
+                confidence=evidence_weight,
             )
             session.add(match)
             await session.flush()
@@ -220,7 +230,7 @@ async def merge_extraction(
         if match is None:
             match = Achievement(
                 persona_id=persona.id, title=ac.title,
-                state=EvidenceState.verified, confidence=_RESUME_W,
+                state=EvidenceState.verified, confidence=evidence_weight,
             )
             session.add(match)
             await session.flush()
