@@ -72,6 +72,7 @@ class RealGitHubClient(GitHubClient):
                 )
                 repo.languages = await self._languages(client, raw["languages_url"])
                 repo.readme = await self._readme(client, raw["full_name"])
+                repo.commits = await self._commits(client, raw["full_name"], username)
                 repos.append(repo)
 
             return GitHubData(
@@ -88,6 +89,24 @@ class RealGitHubClient(GitHubClient):
                 return list(resp.json().keys())
         except Exception as exc:  # pragma: no cover
             log.warning("github_languages_failed", error=str(exc))
+        return []
+
+    async def _commits(
+        self, client: httpx.AsyncClient, full_name: str, username: str | None,
+    ) -> list[str]:
+        try:
+            params: dict[str, str] = {"per_page": "30"}
+            if username:
+                params["author"] = username
+            resp = await client.get(f"{_API}/repos/{full_name}/commits", params=params)
+            if resp.status_code == 200:
+                return [
+                    c["commit"]["message"].split("\n")[0]
+                    for c in resp.json()
+                    if c.get("commit", {}).get("message")
+                ]
+        except Exception as exc:
+            log.warning("github_commits_failed", error=str(exc))
         return []
 
     async def _readme(self, client: httpx.AsyncClient, full_name: str) -> str | None:
@@ -123,6 +142,13 @@ class FakeGitHubClient(GitHubClient):
                     is_fork=False,
                     readme="# rag-search\nBuilt with FastAPI, LangChain and PostgreSQL.",
                     pushed_at="2026-01-01T00:00:00Z",
+                    commits=[
+                        "feat: add hybrid search with BM25 + vector retrieval",
+                        "fix: handle empty query edge case in ranking",
+                        "refactor: extract embedding pipeline into separate module",
+                        "test: add integration tests for retrieval endpoint",
+                        "ci: add GitHub Actions workflow for pytest",
+                    ],
                 ),
                 RepoData(
                     name="dotfiles",
@@ -135,6 +161,10 @@ class FakeGitHubClient(GitHubClient):
                     is_fork=False,
                     readme=None,
                     pushed_at="2025-06-01T00:00:00Z",
+                    commits=[
+                        "chore: update neovim config for LSP",
+                        "feat: add tmux session manager script",
+                    ],
                 ),
             ],
         )

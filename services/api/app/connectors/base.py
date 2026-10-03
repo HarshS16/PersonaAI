@@ -21,6 +21,7 @@ class RepoData:
     is_fork: bool = False
     readme: str | None = None
     pushed_at: str | None = None
+    commits: list[str] = field(default_factory=list)
 
 
 @dataclass

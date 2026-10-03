@@ -59,6 +59,15 @@ def _build_extraction(data: GitHubData) -> ResumeExtraction:
     return ResumeExtraction(projects=projects, skills=list(skills.values()))
 
 
+def _build_commit_corpus(data: GitHubData) -> str | None:
+    lines: list[str] = []
+    for repo in data.repos:
+        if repo.commits:
+            lines.append(f"## {repo.name}")
+            lines.extend(f"- {msg}" for msg in repo.commits)
+    return "\n".join(lines) if lines else None
+
+
 async def sync_github_job(
     job_id: uuid.UUID, session_factory: SessionFactory | None = None
 ) -> dict[str, Any]:
@@ -163,6 +172,34 @@ async def _run(sf: SessionFactory, job_id: uuid.UUID) -> dict[str, Any]:
                     text=tc.text,
                     embedding=vec,
                     chunk_metadata={"repo": repo.full_name, "section": tc.section},
+                )
+                s.add(ch)
+                await s.flush()
+                chunks_for_merge.append((ch.id, ch.text))
+
+        commit_corpus = _build_commit_corpus(data)
+        if commit_corpus:
+            doc = Document(
+                source_id=source.id,
+                persona_id=persona.id,
+                title=f"{data.username}/commit-messages",
+                mime="text/plain",
+                content=commit_corpus,
+                content_hash=hashlib.sha256(commit_corpus.encode()).hexdigest(),
+                doc_metadata={"type": "commit_messages", "username": data.username},
+            )
+            s.add(doc)
+            await s.flush()
+            text_chunks = chunk_text(commit_corpus)
+            vectors = await embedder.embed([tc.text for tc in text_chunks])
+            for tc, vec in zip(text_chunks, vectors, strict=True):
+                ch = Chunk(
+                    document_id=doc.id,
+                    persona_id=persona.id,
+                    ordinal=tc.ordinal,
+                    text=tc.text,
+                    embedding=vec,
+                    chunk_metadata={"type": "commit_messages"},
                 )
                 s.add(ch)
                 await s.flush()

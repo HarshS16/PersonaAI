@@ -9,13 +9,13 @@ from __future__ import annotations
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, Depends, Query, Request, Response
+from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, Field
-from sqlalchemy import or_, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_session
-from app.core.errors import AppError, NotFoundError
+from app.core.errors import NotFoundError
 from app.core.ratelimit import limiter
 from app.domain.public_chat import public_ask
 from app.models.enums import Visibility

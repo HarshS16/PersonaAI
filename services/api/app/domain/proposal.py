@@ -15,7 +15,6 @@ from app.ai.llm import get_llm
 from app.ai.llm.base import Message
 from app.ai.rag.retrieval import build_context_block, retrieve
 from app.ai.rag.validation import ClaimStatus, validate_text
-from app.ai.writing_style import style_descriptor
 from app.core.config import settings
 from app.domain.content import _style_hint
 from app.models.persona import Persona
@@ -48,10 +47,22 @@ async def generate_proposal(
     style = await _style_hint(session, persona)
 
     platform_hint = {
-        "upwork": "an Upwork freelancer proposal (concise opening hook, relevant experience, clear deliverables, timeline mention)",
-        "toptal": "a Toptal application-style proposal (technical depth, past results, structured approach)",
-        "fiverr": "a Fiverr gig proposal (friendly, outcome-focused, quick turnaround emphasis)",
-        "generic": "a freelance project proposal (professional, clear scope and approach)",
+        "upwork": (
+            "an Upwork freelancer proposal (concise opening hook, "
+            "relevant experience, clear deliverables, timeline mention)"
+        ),
+        "toptal": (
+            "a Toptal application-style proposal "
+            "(technical depth, past results, structured approach)"
+        ),
+        "fiverr": (
+            "a Fiverr gig proposal "
+            "(friendly, outcome-focused, quick turnaround emphasis)"
+        ),
+        "generic": (
+            "a freelance project proposal "
+            "(professional, clear scope and approach)"
+        ),
     }.get(platform.lower(), "a freelance project proposal")
 
     system = (

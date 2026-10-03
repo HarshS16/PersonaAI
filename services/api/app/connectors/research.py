@@ -7,11 +7,10 @@ them into the persona's publication + skill models.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
 
 import httpx
 
-from app.ai.extraction import ExtractedSkill, ResumeExtraction
+from app.ai.extraction import ResumeExtraction
 from app.core.errors import AppError
 from app.core.logging import get_logger
 

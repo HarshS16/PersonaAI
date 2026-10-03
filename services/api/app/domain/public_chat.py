@@ -6,7 +6,6 @@ grounded strictly in that persona's public-visibility facts and chunks.
 
 from __future__ import annotations
 
-import uuid
 from typing import Any
 
 from sqlalchemy import select
@@ -14,7 +13,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.llm import get_llm
 from app.ai.llm.base import Message
-from app.ai.rag.retrieval import build_context_block, retrieve
 from app.core.config import settings
 from app.models.enums import Visibility
 from app.models.facts import Achievement, Education, Experience, Project, Publication, Skill

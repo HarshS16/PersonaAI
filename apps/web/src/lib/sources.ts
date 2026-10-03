@@ -82,6 +82,14 @@ async function _uploadFile(
   return body as UploadResponse;
 }
 
+export const researchApi = {
+  connect: (provider: string, query: string) =>
+    api<{ source: Source; job: Job }>("/sources/research/connect", {
+      method: "POST",
+      body: JSON.stringify({ provider, query }),
+    }),
+};
+
 export const blogApi = {
   connect: (provider: string, handle: string) =>
     api<{ source: Source; job: Job }>("/sources/blog/connect", {

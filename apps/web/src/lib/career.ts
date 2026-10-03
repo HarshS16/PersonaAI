@@ -64,6 +64,12 @@ export type InterviewResult = {
   questions: { question: string; focus: string }[];
 };
 
+export type FeedbackResult = {
+  id: string;
+  feedback: string;
+  question: string;
+};
+
 export const careerApi = {
   analyzeJd: (job_description: string) =>
     api<JDResult>("/jd/analyze", { method: "POST", body: JSON.stringify({ job_description }) }),
@@ -72,9 +78,24 @@ export const careerApi = {
       method: "POST",
       body: JSON.stringify({ job_description, target_role: target_role || null }),
     }),
+  exportResumePdf: async (job_description: string, target_role?: string) => {
+    const res = await fetch("/api/backend/resume/export-pdf", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ job_description, target_role: target_role || null }),
+    });
+    if (!res.ok) throw new Error("PDF export failed");
+    return res.blob();
+  },
   startInterview: (mode: string, job_description?: string) =>
     api<InterviewResult>("/interview/start", {
       method: "POST",
       body: JSON.stringify({ mode, job_description: job_description || null }),
+    }),
+  interviewFeedback: (question: string, answer: string) =>
+    api<FeedbackResult>("/interview/feedback", {
+      method: "POST",
+      body: JSON.stringify({ question, answer }),
     }),
 };

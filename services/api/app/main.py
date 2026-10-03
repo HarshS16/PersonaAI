@@ -100,6 +100,7 @@ def create_app() -> FastAPI:
     app.include_router(blog.router)
     app.include_router(linkedin.router)
     app.include_router(x_archive.router)
+    app.include_router(research.router)
     app.include_router(preferences.router)
     app.include_router(chat.router)
     app.include_router(career.router)

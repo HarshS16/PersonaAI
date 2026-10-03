@@ -185,11 +185,11 @@ async def resume_export_pdf(
         from weasyprint import HTML  # type: ignore[import-untyped]
 
         pdf_bytes = HTML(string=html).write_pdf()
-    except ImportError:
+    except ImportError as exc:
         raise AppError(
             "PDF export requires weasyprint. Install with: pip install weasyprint",
             code="missing_dependency",
-        )
+        ) from exc
     filename = f"resume-{(persona.full_name or 'export').replace(' ', '-').lower()}.pdf"
     return RawResponse(
         content=pdf_bytes,

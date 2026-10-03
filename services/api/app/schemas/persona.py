@@ -38,7 +38,10 @@ class PersonaUpdate(BaseModel):
     summary: str | None = None
     location: str | None = Field(default=None, max_length=200)
     links: dict[str, Any] | None = None
-    slug: str | None = Field(default=None, max_length=100, pattern=r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$")
+    slug: str | None = Field(
+        default=None, max_length=100,
+        pattern=r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$",
+    )
 
 
 # ---------------------------------------------------------------------------

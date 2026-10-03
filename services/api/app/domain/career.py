@@ -287,7 +287,8 @@ def resume_to_html(resume: dict[str, Any]) -> str:
 
     proj_html = ""
     for p in resume.get("projects", []):
-        tech = f" ({', '.join(e(t) for t in p.get('technologies', []))})" if p.get("technologies") else ""
+        techs = p.get("technologies", [])
+        tech = f" ({', '.join(e(t) for t in techs)})" if techs else ""
         bullets = "".join(f"<li>{e(b['text'])}</li>" for b in p.get("bullets", []))
         proj_html += f"<div class=entry><h3>{e(p['name'])}{tech}</h3><ul>{bullets}</ul></div>"
 

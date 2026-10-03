@@ -26,4 +26,14 @@ export const contentApi = {
       method: "POST",
       body: JSON.stringify({ question, job_description: job_description || null }),
     }),
+  proposal: (project_description: string, platform: string, tone: string) =>
+    api<ContentResult>("/content/proposal", {
+      method: "POST",
+      body: JSON.stringify({ project_description, platform, tone }),
+    }),
+  meetingPrep: (context: string, focus: string) =>
+    api<{ id: string; content: string; focus: string }>("/content/meeting-prep", {
+      method: "POST",
+      body: JSON.stringify({ context, focus }),
+    }),
 };
