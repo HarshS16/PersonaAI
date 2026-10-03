@@ -44,6 +44,14 @@ class ExtractedAchievement(BaseModel):
     quote: str
 
 
+class ExtractedPublication(BaseModel):
+    title: str
+    venue: str | None = None
+    year: int | None = None
+    url: str | None = None
+    quote: str
+
+
 class JDAnalysis(BaseModel):
     """Structured requirements extracted from a job description (SRD §26)."""
 
@@ -69,3 +77,4 @@ class ResumeExtraction(BaseModel):
     projects: list[ExtractedProject] = Field(default_factory=list)
     education: list[ExtractedEducation] = Field(default_factory=list)
     achievements: list[ExtractedAchievement] = Field(default_factory=list)
+    publications: list[ExtractedPublication] = Field(default_factory=list)

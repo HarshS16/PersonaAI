@@ -27,6 +27,7 @@ dependencies = [
     "tenacity>=9.0",
     "prometheus-client>=0.21",
     "sentry-sdk[fastapi]>=2.0",
+    "feedparser>=6.0",
 ]
 
 [project.optional-dependencies]
@@ -50,6 +51,9 @@ observability = [
     "opentelemetry-instrumentation-fastapi>=0.50b0",
     "opentelemetry-instrumentation-sqlalchemy>=0.50b0",
     "opentelemetry-instrumentation-httpx>=0.50b0",
+]
+export = [
+    "weasyprint>=62",
 ]
 dev = [
     "pytest>=8.3",

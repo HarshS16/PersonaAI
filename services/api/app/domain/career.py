@@ -267,6 +267,57 @@ def _summary(persona: Persona, headline: str, skills: list[str]) -> str:
     return base + "."
 
 
+def resume_to_html(resume: dict[str, Any]) -> str:
+    """Render a resume as a self-contained HTML page suitable for PDF export."""
+    import html
+
+    e = html.escape
+    name = e(resume.get("name") or "Resume")
+    headline = e(resume.get("headline", ""))
+    summary = e(resume.get("summary", ""))
+
+    skills_html = ", ".join(e(s) for s in resume.get("skills", []))
+    exp_html = ""
+    for ex in resume.get("experience", []):
+        dates = " – ".join(filter(None, [ex.get("start_date"), ex.get("end_date") or "Present"]))
+        company = f" · {e(ex['company'])}" if ex.get("company") else ""
+        bullets = "".join(f"<li>{e(b['text'])}</li>" for b in ex.get("bullets", []))
+        exp_html += f"<div class=entry><h3>{e(ex['role'])}{company}</h3>"
+        exp_html += f"<div class=dates>{e(dates)}</div><ul>{bullets}</ul></div>"
+
+    proj_html = ""
+    for p in resume.get("projects", []):
+        tech = f" ({', '.join(e(t) for t in p.get('technologies', []))})" if p.get("technologies") else ""
+        bullets = "".join(f"<li>{e(b['text'])}</li>" for b in p.get("bullets", []))
+        proj_html += f"<div class=entry><h3>{e(p['name'])}{tech}</h3><ul>{bullets}</ul></div>"
+
+    edu_html = ""
+    for ed in resume.get("education", []):
+        parts = filter(None, [ed.get("degree"), ed.get("field_of_study"), ed.get("institution")])
+        edu_html += f"<li>{', '.join(e(p) for p in parts)}</li>"
+
+    return f"""<!doctype html>
+<html lang=en><head><meta charset=utf-8>
+<title>{name} — Resume</title>
+<style>
+@page {{ size: A4; margin: 1.5cm; }}
+body {{ font: 11pt/1.5 system-ui, sans-serif; color: #1a1a1a; margin: 0; padding: 20px; }}
+h1 {{ font-size: 20pt; margin: 0; }} h2 {{ font-size: 12pt; border-bottom: 1px solid #ccc;
+padding-bottom: 3px; margin-top: 14px; }} h3 {{ font-size: 11pt; margin: 0; }}
+.headline {{ color: #555; margin: 2px 0 8px; }} .dates {{ color: #777; font-size: 10pt; }}
+.entry {{ margin: 8px 0; }} ul {{ margin: 2px 0; padding-left: 18px; }}
+li {{ margin: 1px 0; }} .skills {{ margin: 4px 0; }}
+</style></head><body>
+<h1>{name}</h1>
+<div class=headline>{headline}</div>
+{"<p>" + summary + "</p>" if summary else ""}
+{"<h2>Skills</h2><div class=skills>" + skills_html + "</div>" if skills_html else ""}
+{"<h2>Experience</h2>" + exp_html if exp_html else ""}
+{"<h2>Projects</h2>" + proj_html if proj_html else ""}
+{"<h2>Education</h2><ul>" + edu_html + "</ul>" if edu_html else ""}
+</body></html>"""
+
+
 def _render_markdown(resume: dict[str, Any]) -> str:
     lines = [f"# {resume.get('name') or 'Resume'}", f"**{resume['headline']}**", ""]
     if resume.get("summary"):

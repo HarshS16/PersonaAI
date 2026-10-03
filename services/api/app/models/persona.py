@@ -37,6 +37,7 @@ class Persona(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
     version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
     status: Mapped[str] = mapped_column(String(32), default="active", nullable=False)
+    slug: Mapped[str | None] = mapped_column(String(100), nullable=True, unique=True)
 
     # Identity layer (SRD §8.1)
     full_name: Mapped[str | None] = mapped_column(String(200), nullable=True)

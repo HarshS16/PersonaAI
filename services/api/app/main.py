@@ -33,6 +33,7 @@ from app.api import (
     portfolio,
     preferences,
     public,
+    research,
     sources,
     x_archive,
 )

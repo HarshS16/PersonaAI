@@ -1,4 +1,4 @@
-"""Career endpoints: JD analysis, resume generation, interview preparation."""
+"""Career endpoints: JD analysis, resume generation, interview preparation, PDF export."""
 
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import Response as RawResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -166,3 +167,79 @@ async def get_generation(
         "output": gen.output,
         "created_at": gen.created_at.isoformat(),
     }
+
+
+@router.post("/resume/export-pdf")
+async def resume_export_pdf(
+    body: ResumeRequest,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> RawResponse:
+    """Generate a resume and return it as a PDF (requires weasyprint)."""
+    persona = await _persona(session, user)
+    result = await svc.generate_resume(
+        session, persona, body.job_description, target_role=body.target_role
+    )
+    html = svc.resume_to_html(result["resume"])
+    try:
+        from weasyprint import HTML  # type: ignore[import-untyped]
+
+        pdf_bytes = HTML(string=html).write_pdf()
+    except ImportError:
+        raise AppError(
+            "PDF export requires weasyprint. Install with: pip install weasyprint",
+            code="missing_dependency",
+        )
+    filename = f"resume-{(persona.full_name or 'export').replace(' ', '-').lower()}.pdf"
+    return RawResponse(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+class InterviewFeedbackRequest(BaseModel):
+    question: str = Field(min_length=5, max_length=2000)
+    answer: str = Field(min_length=5, max_length=5000)
+
+
+@router.post("/interview/feedback")
+async def interview_feedback(
+    body: InterviewFeedbackRequest,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> dict[str, Any]:
+    """Evaluate a user's interview answer against their persona for grounded feedback."""
+    from app.ai.llm import get_llm
+    from app.ai.llm.base import Message
+    from app.ai.rag.retrieval import build_context_block, retrieve
+    from app.core.config import settings
+
+    persona = await _persona(session, user)
+    ctx = await retrieve(session, persona, body.question)
+    context_block = build_context_block(ctx)
+    name = persona.full_name or "the candidate"
+
+    system = (
+        f"You are an interview coach for {name}. Evaluate their answer to the question below "
+        "against their actual professional background. Provide:\n"
+        "1) Strengths: what they got right (grounded in their real experience)\n"
+        "2) Improvements: what they could strengthen with specific examples from their background\n"
+        "3) Suggested answer: a concise model answer using ONLY verified facts\n\n"
+        f"Candidate background:\n{context_block}"
+    )
+    messages: list[Message] = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": f"Question: {body.question}\n\nTheir answer: {body.answer}"},
+    ]
+    llm = get_llm()
+    result = await llm.complete(
+        messages, model=settings.llm_model_strong, max_tokens=1000,
+        temperature=0.3, purpose="interview_feedback",
+    )
+    output = {"feedback": result.text.strip(), "question": body.question}
+    gen_id = await _save(
+        session, persona, type_="interview_feedback", title=body.question[:80],
+        input_=body.model_dump(), output=output,
+    )
+    return {"id": str(gen_id), **output}

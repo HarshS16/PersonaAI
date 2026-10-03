@@ -20,7 +20,7 @@ from app.ai.extraction import ResumeExtraction
 from app.domain.persona import EVIDENCE_WEIGHTS, compute_confidence
 from app.models.enums import EntityType, EvidenceState
 from app.models.evidence import Evidence
-from app.models.facts import Achievement, Education, Experience, Project, Skill
+from app.models.facts import Achievement, Education, Experience, Project, Publication, Skill
 from app.models.ingestion import Conflict
 from app.models.persona import Persona
 
@@ -240,6 +240,32 @@ async def merge_extraction(
             summary.bump(summary.updated, "achievements")
         await add_evidence(EntityType.achievement, match.id, ac.quote, "achievements")
         await recompute(match, EntityType.achievement)
+
+    # ---- Publications ----
+    existing_pub = await _load(session, Publication, persona.id)
+    for pub in extraction.publications:
+        match = next((p for p in existing_pub if _similar(p.title, pub.title)), None)
+        if match is None:
+            match = Publication(
+                persona_id=persona.id, title=pub.title,
+                venue=pub.venue, year=pub.year, url=pub.url,
+                state=EvidenceState.verified, confidence=evidence_weight,
+            )
+            session.add(match)
+            await session.flush()
+            existing_pub.append(match)
+            summary.bump(summary.created, "publications")
+        else:
+            # Fill missing fields on the existing record
+            if not match.venue and pub.venue:
+                match.venue = pub.venue
+            if not match.year and pub.year:
+                match.year = pub.year
+            if not match.url and pub.url:
+                match.url = pub.url
+            summary.bump(summary.updated, "publications")
+        await add_evidence(EntityType.publication, match.id, pub.quote, "publications")
+        await recompute(match, EntityType.publication)
 
     await session.flush()
     return summary
