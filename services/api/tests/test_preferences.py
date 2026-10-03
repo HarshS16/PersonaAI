@@ -77,7 +77,7 @@ async def test_dismiss_deletes_preference(auth_client: AsyncClient) -> None:
 async def test_infer_idempotent(auth_client: AsyncClient) -> None:
     """Running infer twice doesn't duplicate preferences."""
     await _seed_persona(auth_client)
-    first = (await auth_client.post("/preferences/infer")).json()
+    await auth_client.post("/preferences/infer")
     second = (await auth_client.post("/preferences/infer")).json()
     assert second["count"] == 0  # all keys already exist
 

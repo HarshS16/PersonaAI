@@ -20,16 +20,20 @@ from app.api import (
     account,
     auth,
     blog,
+    calendar_import,
     career,
     chat,
     content,
     dashboard,
     documents,
+    email_import,
     github,
     health,
+    job_search,
     linkedin,
     oauth,
     persona,
+    pkm,
     portfolio,
     preferences,
     public,
@@ -100,6 +104,9 @@ def create_app() -> FastAPI:
     app.include_router(blog.router)
     app.include_router(linkedin.router)
     app.include_router(x_archive.router)
+    app.include_router(email_import.router)
+    app.include_router(calendar_import.router)
+    app.include_router(pkm.router)
     app.include_router(research.router)
     app.include_router(preferences.router)
     app.include_router(chat.router)
@@ -108,6 +115,7 @@ def create_app() -> FastAPI:
     app.include_router(portfolio.router)
     app.include_router(account.router)
     app.include_router(public.router)
+    app.include_router(job_search.router)
 
     setup_otel(app)
     return app

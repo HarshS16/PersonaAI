@@ -104,6 +104,10 @@ export const sourcesApi = {
   upload: (file: File) => _uploadFile("/documents/upload", file),
   uploadLinkedIn: (file: File) => _uploadFile("/sources/linkedin/upload", file),
   uploadX: (file: File) => _uploadFile("/sources/x/upload", file),
+  uploadEmail: (file: File) => _uploadFile("/sources/email/upload", file),
+  uploadCalendar: (file: File) => _uploadFile("/sources/calendar/upload", file),
+  uploadBookmarks: (file: File) => _uploadFile("/sources/pkm/bookmarks/upload", file),
+  uploadNotes: (file: File) => _uploadFile("/sources/pkm/notes/upload", file),
 
   list: () => api<Source[]>("/sources"),
   disconnect: (id: string) => api<void>(`/sources/${id}`, { method: "DELETE" }),

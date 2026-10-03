@@ -51,6 +51,8 @@ _TABLES = [
     "oauth_accounts",
     "chat_messages",
     "chat_sessions",
+    "job_leads",
+    "job_search_tasks",
     "generations",
     "ai_calls",
     "chunks",

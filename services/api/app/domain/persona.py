@@ -41,6 +41,9 @@ EVIDENCE_WEIGHTS: dict[str, float] = {
     "linkedin": 0.55,
     "github_readme": 0.35,
     "blog": 0.3,
+    "email": 0.4,
+    "calendar": 0.3,
+    "pkm": 0.3,
     "inferred": 0.25,
 }
 

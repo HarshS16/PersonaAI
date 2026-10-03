@@ -202,14 +202,24 @@ All persona-owned rows carry `persona_id`, `visibility` (`private|shared|public`
 - [x] Frontend: Blog connector card (platform + handle), LinkedIn upload card, X archive upload card on the Sources page
 - **Done when:** all connectors ingest data, writing style adapts generated content, and preferences auto-detect + confirm/dismiss. ✅ 95 backend tests pass; frontend tsc clean.
 
-### Phase 3 (§57)
-- [ ] Public persona and "Ask <Name> AI" public page (public-visibility facts only, separate rate-limited endpoint, custom slug)
-- [ ] Freelancer proposal generator (§32)
-- [ ] Research assistant (ORCID / arXiv / Semantic Scholar imports), meeting preparation
-- [ ] Email and calendar integrations: listed but deferred; they need separate OAuth app approval and a scoping decision
+### Phase 3 (§57) ✅
+- [x] Public persona and "Ask <Name> AI" public page (slug-based URLs, rate-limited 20/hr, custom slug with Alembic migration)
+- [x] Freelancer proposal generator (platform-aware: Upwork/Toptal/Fiverr/generic, RAG-grounded, claim-validated)
+- [x] Research assistant (Semantic Scholar, arXiv, ORCID — all free APIs), meeting preparation
+- [x] Email integration: MBOX/EML upload, sent-email parsing, professional topic extraction
+- [x] Calendar integration: ICS upload, event parsing, meeting pattern analysis
+- [x] Personal knowledge management: browser bookmark HTML import, markdown notes import, interest/knowledge extraction
+- [x] Deferred enhancements: PDF resume export (WeasyPrint), interview answer feedback, commit-message mining from GitHub
+- [x] Frontend: ResearchCard, EmailCard, CalendarCard, PKMCard on Sources page; API clients for all new endpoints
 
-### Phase 4 (§58): out of scope for this build
-Agentic job search with approval gates. The architecture leaves room for it (action log + explicit-approval model), but it won't be built unless you ask.
+### Phase 4 (§58) ✅
+- [x] Agentic job search: search → evaluate → rank → approval gate → application generation
+- [x] JobSearchTask + JobLead models with approval workflow (pending/approved/rejected/applied)
+- [x] LLM-powered job search (persona-aware), fit evaluation with score/matched/missing skills
+- [x] Approval gate: leads must be explicitly approved before application generation
+- [x] Tailored cover letter + talking points + interviewer questions for approved leads
+- [x] Frontend API client (job-search.ts) with full flow support
+- [x] Alembic migration for job_search_tasks and job_leads tables
 
 ---
 

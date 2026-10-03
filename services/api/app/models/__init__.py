@@ -16,6 +16,7 @@ _MODEL_MODULES: list[str] = [
     "app.models.ingestion",
     "app.models.chat",
     "app.models.generation",
+    "app.models.job_search",
 ]
 
 

@@ -161,6 +161,90 @@ def sync_x_task(self: Any, job_id: str) -> dict[str, Any]:
 
 
 @celery_app.task(  # type: ignore[untyped-decorator]
+    name="sync_email",
+    bind=True,
+    max_retries=3,
+    default_retry_delay=15,
+    acks_late=True,
+)
+def sync_email_task(self: Any, job_id: str) -> dict[str, Any]:
+    """Sync an email import source."""
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
+    from app.core.config import settings
+    from app.ingestion.email_sync import sync_email_job
+
+    async def _main() -> dict[str, Any]:
+        engine = create_async_engine(settings.database_url, pool_pre_ping=True)
+        factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
+        try:
+            return await sync_email_job(uuid.UUID(job_id), session_factory=factory)
+        finally:
+            await engine.dispose()
+
+    try:
+        return asyncio.run(_main())
+    except Exception as exc:  # noqa: BLE001
+        raise self.retry(exc=exc) from exc
+
+
+@celery_app.task(  # type: ignore[untyped-decorator]
+    name="sync_calendar",
+    bind=True,
+    max_retries=3,
+    default_retry_delay=15,
+    acks_late=True,
+)
+def sync_calendar_task(self: Any, job_id: str) -> dict[str, Any]:
+    """Sync a calendar (ICS) source."""
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
+    from app.core.config import settings
+    from app.ingestion.calendar_sync import sync_calendar_job
+
+    async def _main() -> dict[str, Any]:
+        engine = create_async_engine(settings.database_url, pool_pre_ping=True)
+        factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
+        try:
+            return await sync_calendar_job(uuid.UUID(job_id), session_factory=factory)
+        finally:
+            await engine.dispose()
+
+    try:
+        return asyncio.run(_main())
+    except Exception as exc:  # noqa: BLE001
+        raise self.retry(exc=exc) from exc
+
+
+@celery_app.task(  # type: ignore[untyped-decorator]
+    name="sync_pkm",
+    bind=True,
+    max_retries=3,
+    default_retry_delay=15,
+    acks_late=True,
+)
+def sync_pkm_task(self: Any, job_id: str) -> dict[str, Any]:
+    """Sync a PKM source (bookmarks or markdown notes)."""
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+
+    from app.core.config import settings
+    from app.ingestion.pkm_sync import sync_pkm_job
+
+    async def _main() -> dict[str, Any]:
+        engine = create_async_engine(settings.database_url, pool_pre_ping=True)
+        factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
+        try:
+            return await sync_pkm_job(uuid.UUID(job_id), session_factory=factory)
+        finally:
+            await engine.dispose()
+
+    try:
+        return asyncio.run(_main())
+    except Exception as exc:  # noqa: BLE001
+        raise self.retry(exc=exc) from exc
+
+
+@celery_app.task(  # type: ignore[untyped-decorator]
     name="sync_research",
     bind=True,
     max_retries=3,

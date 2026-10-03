@@ -34,7 +34,8 @@ def _make_linkedin_zip() -> bytes:
 
         # Positions.csv
         pos = io.StringIO()
-        w = csv.DictWriter(pos, fieldnames=["Title", "Company Name", "Started On", "Finished On", "Description"])
+        fields = ["Title", "Company Name", "Started On", "Finished On", "Description"]
+        w = csv.DictWriter(pos, fieldnames=fields)
         w.writeheader()
         w.writerow({
             "Title": "Staff Engineer", "Company Name": "Acme Corp",

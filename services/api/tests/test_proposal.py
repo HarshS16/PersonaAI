@@ -60,7 +60,10 @@ async def test_interview_feedback(auth_client: AsyncClient) -> None:
         "/interview/feedback",
         json={
             "question": "Tell me about a project you built with Python.",
-            "answer": "I built a data pipeline that processes analytics events using Python and PostgreSQL.",
+            "answer": (
+                "I built a data pipeline that processes analytics "
+                "events using Python and PostgreSQL."
+            ),
         },
     )
     assert resp.status_code == 200

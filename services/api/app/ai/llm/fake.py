@@ -137,6 +137,48 @@ def _analyze_jd(text: str) -> dict[str, Any]:
     }
 
 
+def _fake_job_search(text: str) -> dict[str, Any]:
+    lower = text.lower()
+    techs = [kw for kw in _SKILL_VOCAB if kw in lower][:3]
+    title_word = "Backend" if "backend" in lower else "Software"
+    return {
+        "jobs": [
+            {
+                "title": f"Senior {title_word} Engineer",
+                "company": "TechCorp",
+                "location": "Remote",
+                "description": (
+                    f"Build scalable systems using "
+                    f"{', '.join(techs[:2]) or 'modern tools'}."
+                ),
+                "url": None,
+            },
+            {
+                "title": f"{title_word} Developer",
+                "company": "StartupAI",
+                "location": "San Francisco, CA",
+                "description": (
+                    "Join our team to build next-generation "
+                    "platform features."
+                ),
+                "url": None,
+            },
+        ]
+    }
+
+
+def _fake_job_eval(text: str) -> dict[str, Any]:
+    lower = text.lower()
+    matched = [kw for kw in _SKILL_VOCAB if kw in lower][:4]
+    missing = ["kubernetes", "terraform"]
+    return {
+        "fit_score": 0.75,
+        "explanation": "Strong match on core skills.",
+        "matched_skills": matched,
+        "missing_skills": missing,
+    }
+
+
 class FakeLLMProvider(LLMProvider):
     name = "fake"
 
@@ -156,6 +198,10 @@ class FakeLLMProvider(LLMProvider):
             payload = json.dumps(_extract_resume(user_text))
         elif purpose.startswith("analyze_jd"):
             payload = json.dumps(_analyze_jd(user_text))
+        elif purpose == "job_search":
+            payload = json.dumps(_fake_job_search(user_text))
+        elif purpose == "job_eval":
+            payload = json.dumps(_fake_job_eval(user_text))
         elif json_mode:
             payload = "{}"
         else:

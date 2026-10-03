@@ -7,6 +7,9 @@ import { BlogCard } from "@/components/sources/blog-card";
 import { LinkedInCard } from "@/components/sources/linkedin-card";
 import { XArchiveCard } from "@/components/sources/x-archive-card";
 import { ResearchCard } from "@/components/sources/research-card";
+import { EmailCard } from "@/components/sources/email-card";
+import { CalendarCard } from "@/components/sources/calendar-card";
+import { PKMCard } from "@/components/sources/pkm-card";
 import { SourceList } from "@/components/sources/source-list";
 import { ConflictsCard } from "@/components/sources/conflicts-card";
 
@@ -27,6 +30,9 @@ export default function SourcesPage() {
       <BlogCard />
       <XArchiveCard />
       <ResearchCard />
+      <EmailCard />
+      <CalendarCard />
+      <PKMCard />
       <SourceList />
 
       <p className="text-center text-sm text-muted-foreground">
